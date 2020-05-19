@@ -1,0 +1,2 @@
+Created on:Sunday, May 17, 2020
+Based on:FindSymbols
