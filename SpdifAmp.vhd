@@ -22,18 +22,18 @@ architecture rtl of SpdifAmp is
 		);
 	end component;
 	
-	signal r_strobe, r_large, r_medium, r_small: std_logic;
+	signal r_strobe_in, r_large, r_medium, r_small: std_logic;
+	signal r_strobe_out : std_logic := '0';
 	
 	type t_state is (WS, SY, PX1, PX2, PY1, PY2, PZ1, PZ2, PL);
 	signal r_state : t_state := WS;
 begin
-	decoder: Aes3BaseDecoder port map (i_clock, i_data, r_large, r_medium, r_small, r_strobe);
+	decoder: Aes3BaseDecoder port map (i_clock, i_data, r_large, r_medium, r_small, r_strobe_in);
 	
 	
-	PreambleStateMachine : process(r_strobe)
+	PreambleStateMachine : process(r_strobe_in)
 	begin
-		if falling_edge(r_strobe) then
-			o_strobe <= '0';
+		if falling_edge(r_strobe_in) then
 			o_small <= r_small;
 			o_medium <= r_medium;
 			o_large <= r_large;
@@ -73,7 +73,7 @@ begin
 					o_py <= '0';
 					o_pz <= '0';
 					if r_small = '1' then
-						o_strobe <= '1';
+						r_strobe_out <= not r_strobe_out;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -94,7 +94,7 @@ begin
 					o_py <= '1';
 					o_pz <= '0';
 					if r_medium = '1' then
-						o_strobe <= '1';
+						r_strobe_out <= not r_strobe_out;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -115,7 +115,7 @@ begin
 					o_py <= '0';
 					o_pz <= '1';
 					if r_large = '1' then
-						o_strobe <= '1';
+						r_strobe_out <= not r_strobe_out;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -128,5 +128,7 @@ begin
 			end case;
 		end if;
 	end process PreambleStateMachine;
+	
+	o_strobe <= r_strobe_out;
 end rtl;
 
