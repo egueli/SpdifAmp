@@ -73,3 +73,4 @@ set_location_assignment PIN_36 -to o_py
 set_location_assignment PIN_34 -to o_pz
 set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
+set_global_assignment -name VHDL_FILE StrobeGenerator.vhd
