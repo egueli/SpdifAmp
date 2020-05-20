@@ -30,9 +30,13 @@ begin
 	decoder: Aes3BaseDecoder port map (i_clock, i_data, r_large, r_medium, r_small, r_strobe);
 	
 	
-	PreambleStateMachine : process(i_clock, r_strobe)
+	PreambleStateMachine : process(r_strobe)
 	begin
 		if falling_edge(r_strobe) then
+			o_strobe <= '0';
+			o_small <= r_small;
+			o_medium <= r_medium;
+			o_large <= r_large;
 			case r_state is
 				when WS =>
 					o_px <= '0';
@@ -69,6 +73,7 @@ begin
 					o_py <= '0';
 					o_pz <= '0';
 					if r_small = '1' then
+						o_strobe <= '1';
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -89,6 +94,7 @@ begin
 					o_py <= '1';
 					o_pz <= '0';
 					if r_medium = '1' then
+						o_strobe <= '1';
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -98,7 +104,6 @@ begin
 					o_px <= '0';
 					o_py <= '0';
 					o_pz <= '1';
-				
 					if r_small = '1' then
 						r_state <= PZ2;
 					else
@@ -110,6 +115,7 @@ begin
 					o_py <= '0';
 					o_pz <= '1';
 					if r_large = '1' then
+						o_strobe <= '1';
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -122,10 +128,5 @@ begin
 			end case;
 		end if;
 	end process PreambleStateMachine;
-	
-	o_strobe <= r_strobe;
-	o_small <= r_small;
-	o_medium <= r_medium;
-	o_large <= r_large;
 end rtl;
 
