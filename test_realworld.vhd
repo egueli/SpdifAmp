@@ -19,7 +19,7 @@ architecture tb_realworld of test_spdif is
   -- Set up the signals on the 3bit_counter
   signal i_clock : std_logic;
   signal i_data : std_logic;
-  signal o_strobe    : std_logic;
+  signal o_payload_begin    : std_logic;
 
   -- Set up the vcc signal as 1
   signal vcc  : std_logic := '1';
@@ -31,7 +31,7 @@ architecture tb_realworld of test_spdif is
       port map (
         i_clock => i_clock,
         i_data => i_data,
-        o_strobe => o_strobe);
+        o_payload_begin => o_payload_begin);
     
     clock : process is
       begin
