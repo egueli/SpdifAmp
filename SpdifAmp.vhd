@@ -22,6 +22,6 @@ architecture rtl of SpdifAmp is
 		);
 	end component Aes3PreambleDecoder;
 begin
-	decoder: Aes3PreambleDecoder port map (i_clock, i_data, o_payload_begin, o_payload_clock, o_small, o_medium, o_large);
+	decoder: Aes3PreambleDecoder port map (i_clock, i_data, o_payload_begin, o_payload_clock, o_small, o_medium, o_large, o_px, o_py, o_pz);
 end rtl;
 

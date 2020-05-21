@@ -54,7 +54,6 @@ set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulati
 set_global_assignment -name VHDL_FILE SpdifAmp.vhd
 set_location_assignment PIN_12 -to i_clock
 set_location_assignment PIN_52 -to i_data
-set_location_assignment PIN_40 -to o_strobe
 set_global_assignment -name CDF_FILE output_files/output_files/Chain2.cdf
 set_global_assignment -name AUTO_RESTART_CONFIGURATION OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
@@ -70,8 +69,9 @@ set_location_assignment PIN_30 -to o_small
 set_global_assignment -name VHDL_FILE Aes3Decoder.vhd
 set_location_assignment PIN_37 -to o_px
 set_location_assignment PIN_36 -to o_py
-set_location_assignment PIN_34 -to o_pz
 set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
 set_global_assignment -name VHDL_FILE StrobeGenerator.vhd
 set_global_assignment -name VHDL_FILE Aes3PreambleDecoder.vhd
+set_location_assignment PIN_40 -to o_payload_begin
+set_location_assignment PIN_34 -to o_payload_clock
