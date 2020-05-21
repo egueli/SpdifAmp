@@ -7,7 +7,7 @@ entity SpdifAmp is
 	port(
 		i_clock: in std_logic;
 		i_data: in std_logic;
-		o_payload_begin, o_small, o_medium, o_large: out std_logic;
+		o_payload_begin, o_payload_clock, o_small, o_medium, o_large: out std_logic;
 		o_px, o_py, o_pz: out std_logic
 	);
 end SpdifAmp;
@@ -34,12 +34,14 @@ architecture rtl of SpdifAmp is
 	
 	signal r_strobe_in, r_large, r_medium, r_small: std_logic;
 	signal r_payload_begin : std_logic := '0';
+	signal r_payload_clock : std_logic := '0';
 	
 	type t_state is (WS, SY, PX1, PX2, PY1, PY2, PZ1, PZ2, PL);
 	signal r_state : t_state := WS;
 begin
 	decoder: Aes3BaseDecoder port map (i_clock, i_data, r_large, r_medium, r_small, r_strobe_in);
 	payloadBeginStrobe: StrobeGenerator port map (i_clock, r_payload_begin, o_payload_begin);
+	payloadClockStrobe: StrobeGenerator port map (i_clock, r_payload_clock, o_payload_clock);
 	
 	PreambleStateMachine : process(r_strobe_in)
 	begin
@@ -134,6 +136,8 @@ begin
 				when PL =>
 					if r_large = '1' then
 						r_state <= SY;
+					else
+						r_payload_clock <= not r_payload_clock;
 					end if;
 			end case;
 		end if;
