@@ -76,3 +76,5 @@ set_global_assignment -name VHDL_FILE Aes3PreambleDecoder.vhd
 set_location_assignment PIN_40 -to o_payload_begin
 set_location_assignment PIN_34 -to o_payload_clock
 set_global_assignment -name VHDL_FILE BiphaseMarkDecoder.vhd
+set_global_assignment -name VHDL_FILE ShiftRegister.vhd
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
