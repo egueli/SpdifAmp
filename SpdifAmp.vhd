@@ -44,13 +44,26 @@ architecture rtl of SpdifAmp is
 			o_strobe: out std_logic
 		);
 	end component ShiftRegister;
-	
+	component StrobeGenerator is
+		generic(
+			strobe_length: integer := 3
+		);
+		port(
+			i_clock: in std_logic;
+			i_toggles: in std_logic;
+			o_strobe: out std_logic
+		);
+	end component StrobeGenerator;
+		
 	signal r_small, r_medium, r_large: std_logic;
 	signal r_payload_clock_bmc: std_logic;
 	
 	signal r_payload_begin: std_logic;
 	signal r_payload_clock: std_logic;
 	signal r_payload_data: std_logic;
+	signal r_payload: std_logic_vector(27 downto 0);
+	signal r_payload_strobe: std_logic;
+	signal r_payload_strobe_toggles: std_logic := '0';
 
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
@@ -76,9 +89,22 @@ begin
 		i_data => r_payload_data,
 		i_strobe => r_payload_clock,
 		i_reset => r_payload_begin,
-		o_output => o_payload,
-		o_strobe => o_payload_strobe
+		o_output => r_payload,
+		o_strobe => r_payload_strobe
 		);
 	
+	outputPayload : process(r_payload_strobe)
+	begin
+		if falling_edge(r_payload_strobe) then
+			o_payload <= r_payload;
+			r_payload_strobe_toggles <= not r_payload_strobe_toggles;
+		end if;
+	end process;
+	
+	payloadStrobe : StrobeGenerator port map (
+		i_clock => i_clock,
+		i_toggles => r_payload_strobe_toggles,
+		o_strobe => o_payload_strobe
+	);
 end rtl;
 
