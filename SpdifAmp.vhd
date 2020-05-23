@@ -7,7 +7,6 @@ entity SpdifAmp is
 	port(
 		i_clock: in std_logic;
 		i_data: in std_logic;
-		o_payload_begin, o_payload_clock, o_payload_data: out std_logic;
 		o_subframe: out std_logic_vector(31 downto 4);
 		o_subframe_strobe: out std_logic
 	);
@@ -85,10 +84,6 @@ begin
 		r_medium, 
 		r_payload_clock, 
 		r_payload_data);
-		
-	o_payload_begin <= r_payload_begin;
-	o_payload_clock <= r_payload_clock;
-	o_payload_data <= r_payload_data;
 		
 	payloadShiftRegister: ShiftRegister port map (
 		i_clock => i_clock,
