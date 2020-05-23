@@ -72,7 +72,7 @@ set_global_assignment -name VHDL_FILE BiphaseMarkDecoder.vhd
 set_global_assignment -name VHDL_FILE ShiftRegister.vhd
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 
-set_location_assignment PIN_16 -to o_subframe[4]
+set_location_assignment PIN_16 -to o_subframe_strobe
 set_location_assignment PIN_18 -to o_subframe[5]
 set_location_assignment PIN_7 -to o_subframe[6]
 set_location_assignment PIN_15 -to o_subframe[7]

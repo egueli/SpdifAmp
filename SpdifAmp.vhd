@@ -8,7 +8,6 @@ entity SpdifAmp is
 		i_clock: in std_logic;
 		i_data: in std_logic;
 		o_payload_begin, o_payload_clock, o_payload_data: out std_logic;
-		o_px, o_py, o_pz: out std_logic;
 		o_subframe: out std_logic_vector(31 downto 4);
 		o_subframe_strobe: out std_logic
 	);
@@ -17,10 +16,10 @@ end SpdifAmp;
 architecture rtl of SpdifAmp is
 	component Aes3PreambleDecoder is
 		port(
-		i_clock: in std_logic;
-		i_data: in std_logic;
-		o_payload_begin, o_payload_clock, o_small, o_medium, o_large: out std_logic;
-		o_px, o_py, o_pz: out std_logic
+			i_clock: in std_logic;
+			i_data: in std_logic;
+			o_payload_begin, o_payload_clock, o_small, o_medium, o_large: out std_logic;
+			o_px, o_py, o_pz: out std_logic
 		);
 	end component Aes3PreambleDecoder;
 	component BiphaseMarkDecoder is
@@ -61,16 +60,23 @@ architecture rtl of SpdifAmp is
 	signal r_payload_begin: std_logic;
 	signal r_payload_clock: std_logic;
 	signal r_payload_data: std_logic;
+	signal r_py: std_logic;
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
 	signal r_subframe_strobe_toggles: std_logic := '0';
 
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
-		i_clock, 
-		i_data, 
-		r_payload_begin, r_payload_clock_bmc, r_small, r_medium, r_large, 
-		o_px, o_py, o_pz);
+		i_clock => i_clock, 
+		i_data => i_data, 
+		o_payload_begin => r_payload_begin,
+		o_payload_clock => r_payload_clock_bmc,
+		o_small => r_small, 
+		o_medium => r_medium,
+		o_large => r_large, 
+		o_px => open,
+		o_py => r_py,
+		o_pz => open);
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
 		i_clock, 
@@ -96,8 +102,10 @@ begin
 	outputPayload : process(r_subframe_strobe)
 	begin
 		if falling_edge(r_subframe_strobe) then
-			o_subframe <= r_subframe;
-			r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
+			if r_py = '1' then
+				o_subframe <= r_subframe;
+				r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
+			end if;
 		end if;
 	end process;
 	
