@@ -63,18 +63,40 @@ set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
 set_global_assignment -name VHDL_FILE InputSynchronizer.vhd
-set_location_assignment PIN_20 -to o_large
-set_location_assignment PIN_26 -to o_medium
-set_location_assignment PIN_30 -to o_small
 set_global_assignment -name VHDL_FILE Aes3Decoder.vhd
-set_location_assignment PIN_37 -to o_px
-set_location_assignment PIN_36 -to o_py
 set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS OFF
 set_global_assignment -name VHDL_FILE StrobeGenerator.vhd
 set_global_assignment -name VHDL_FILE Aes3PreambleDecoder.vhd
-set_location_assignment PIN_40 -to o_payload_begin
-set_location_assignment PIN_34 -to o_payload_clock
 set_global_assignment -name VHDL_FILE BiphaseMarkDecoder.vhd
 set_global_assignment -name VHDL_FILE ShiftRegister.vhd
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+
+set_location_assignment PIN_16 -to o_subframe[4]
+set_location_assignment PIN_18 -to o_subframe[5]
+set_location_assignment PIN_7 -to o_subframe[6]
+set_location_assignment PIN_15 -to o_subframe[7]
+set_location_assignment PIN_17 -to o_subframe[8]
+set_location_assignment PIN_19 -to o_subframe[9]
+set_location_assignment PIN_21 -to o_subframe[10]
+set_location_assignment PIN_27 -to o_subframe[11]
+set_location_assignment PIN_29 -to o_subframe[12]
+set_location_assignment PIN_33 -to o_subframe[13]
+set_location_assignment PIN_35 -to o_subframe[14]
+set_location_assignment PIN_38 -to o_subframe[15]
+set_location_assignment PIN_20 -to o_subframe[16]
+set_location_assignment PIN_26 -to o_subframe[17]
+set_location_assignment PIN_28 -to o_subframe[18]
+set_location_assignment PIN_30 -to o_subframe[19]
+set_location_assignment PIN_34 -to o_subframe[20]
+set_location_assignment PIN_36 -to o_subframe[21]
+set_location_assignment PIN_37 -to o_subframe[22]
+set_location_assignment PIN_99 -to o_subframe[23]
+set_location_assignment PIN_1 -to o_subframe[24]
+set_location_assignment PIN_3 -to o_subframe[25]
+set_location_assignment PIN_5 -to o_subframe[26]
+set_location_assignment PIN_2 -to o_subframe[27]
+set_location_assignment PIN_4 -to o_subframe[28]
+set_location_assignment PIN_6 -to o_subframe[29]
+set_location_assignment PIN_8 -to o_subframe[30]
+set_location_assignment PIN_100 -to o_subframe[31]

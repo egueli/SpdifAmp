@@ -9,8 +9,8 @@ entity SpdifAmp is
 		i_data: in std_logic;
 		o_payload_begin, o_payload_clock, o_payload_data: out std_logic;
 		o_px, o_py, o_pz: out std_logic;
-		o_payload: out std_logic_vector(27 downto 0);
-		o_payload_strobe: out std_logic
+		o_subframe: out std_logic_vector(31 downto 4);
+		o_subframe_strobe: out std_logic
 	);
 end SpdifAmp;
  
@@ -61,9 +61,9 @@ architecture rtl of SpdifAmp is
 	signal r_payload_begin: std_logic;
 	signal r_payload_clock: std_logic;
 	signal r_payload_data: std_logic;
-	signal r_payload: std_logic_vector(27 downto 0);
-	signal r_payload_strobe: std_logic;
-	signal r_payload_strobe_toggles: std_logic := '0';
+	signal r_subframe: std_logic_vector(31 downto 4);
+	signal r_subframe_strobe: std_logic;
+	signal r_subframe_strobe_toggles: std_logic := '0';
 
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
@@ -89,22 +89,22 @@ begin
 		i_data => r_payload_data,
 		i_strobe => r_payload_clock,
 		i_reset => r_payload_begin,
-		o_output => r_payload,
-		o_strobe => r_payload_strobe
+		o_output => r_subframe(31 downto 4),
+		o_strobe => r_subframe_strobe
 		);
 	
-	outputPayload : process(r_payload_strobe)
+	outputPayload : process(r_subframe_strobe)
 	begin
-		if falling_edge(r_payload_strobe) then
-			o_payload <= r_payload;
-			r_payload_strobe_toggles <= not r_payload_strobe_toggles;
+		if falling_edge(r_subframe_strobe) then
+			o_subframe <= r_subframe;
+			r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
 		end if;
 	end process;
 	
 	payloadStrobe : StrobeGenerator port map (
 		i_clock => i_clock,
-		i_toggles => r_payload_strobe_toggles,
-		o_strobe => o_payload_strobe
+		i_toggles => r_subframe_strobe_toggles,
+		o_strobe => o_subframe_strobe
 	);
 end rtl;
 
