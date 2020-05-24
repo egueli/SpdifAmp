@@ -51,6 +51,17 @@ architecture rtl of SpdifAmp is
 			o_strobe: out std_logic
 		);
 	end component StrobeGenerator;
+	
+	function reverse_any_vector(a: in std_logic_vector)
+	return std_logic_vector is
+		variable result: std_logic_vector(a'range);
+		alias aa: std_logic_vector(a'reverse_range) is a;
+	begin
+		for i in aa'range loop
+			result(i) := aa(i);
+		end loop;
+		return result;
+	end;	
 		
 	signal r_small, r_medium, r_large: std_logic;
 	signal r_payload_clock_bmc: std_logic;
@@ -58,7 +69,7 @@ architecture rtl of SpdifAmp is
 	signal r_payload_begin: std_logic;
 	signal r_payload_clock: std_logic;
 	signal r_payload_data: std_logic;
-	signal r_py: std_logic;
+	signal r_px, r_py, r_pz: std_logic;
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
 	signal r_subframe_strobe_toggles: std_logic := '0';
@@ -76,9 +87,9 @@ begin
 		o_small => r_small, 
 		o_medium => r_medium,
 		o_large => r_large, 
-		o_px => open,
+		o_px => r_px,
 		o_py => r_py,
-		o_pz => open);
+		o_pz => r_pz);
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
 		i_clock, 
@@ -100,15 +111,19 @@ begin
 	outputPayload : process(r_subframe_strobe)
 	begin
 		if falling_edge(r_subframe_strobe) then
+			r_audio_sample <= r_subframe(27 downto 12);
+			r_audio_absolute <= std_logic_vector(abs(signed(r_audio_sample)));
+			r_channel_status <= r_subframe(30);
+			o_leds(26) <= r_channel_status;
+			r_parity <= r_subframe(31);
+			o_leds(27) <= r_parity;
+
 			if r_py = '1' then
-				r_audio_sample <= r_subframe(27 downto 12);
-				r_audio_absolute <= std_logic_vector(abs(signed(r_audio_sample)));
-				r_channel_status <= r_subframe(30);
-				r_parity <= r_subframe(31);
-				o_leds <= r_audio_absolute & "0000000000" & r_channel_status & r_parity;
-				
-				r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
+				o_leds(0 to 10) <= r_audio_absolute(14 downto 4);
+			elsif r_px = '1' or r_pz = '1' then
+				o_leds(11 to 21) <= reverse_any_vector(r_audio_absolute(14 downto 4));
 			end if;
+			r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
 		end if;
 	end process;
 	
