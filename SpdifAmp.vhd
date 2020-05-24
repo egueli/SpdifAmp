@@ -7,8 +7,8 @@ entity SpdifAmp is
 	port(
 		i_clock: in std_logic;
 		i_data: in std_logic;
-		o_subframe: out std_logic_vector(31 downto 4);
-		o_subframe_strobe: out std_logic
+		o_leds: out std_logic_vector(27 downto 0);
+		o_leds_strobe: out std_logic
 	);
 end SpdifAmp;
  
@@ -98,7 +98,7 @@ begin
 	begin
 		if falling_edge(r_subframe_strobe) then
 			if r_py = '1' then
-				o_subframe <= r_subframe;
+				o_leds <= r_subframe(31 downto 4);
 				r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
 			end if;
 		end if;
@@ -107,7 +107,7 @@ begin
 	payloadStrobe : StrobeGenerator port map (
 		i_clock => i_clock,
 		i_toggles => r_subframe_strobe_toggles,
-		o_strobe => o_subframe_strobe
+		o_strobe => o_leds_strobe
 	);
 end rtl;
 
