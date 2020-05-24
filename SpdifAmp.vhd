@@ -1,6 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 
 entity SpdifAmp is
@@ -64,6 +63,7 @@ architecture rtl of SpdifAmp is
 	signal r_subframe_strobe: std_logic;
 	signal r_subframe_strobe_toggles: std_logic := '0';
 	signal r_audio_sample: std_logic_vector(15 downto 0);
+	signal r_audio_absolute: std_logic_vector(15 downto 0);
 	signal r_channel_status: std_logic;
 	signal r_parity: std_logic;
 
@@ -102,9 +102,10 @@ begin
 		if falling_edge(r_subframe_strobe) then
 			if r_py = '1' then
 				r_audio_sample <= r_subframe(27 downto 12);
+				r_audio_absolute <= std_logic_vector(abs(signed(r_audio_sample)));
 				r_channel_status <= r_subframe(30);
 				r_parity <= r_subframe(31);
-				o_leds <= r_audio_sample & "0110110110" & r_channel_status & r_parity;
+				o_leds <= r_audio_absolute & "0000000000" & r_channel_status & r_parity;
 				
 				r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
 			end if;
