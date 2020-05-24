@@ -7,7 +7,7 @@ entity SpdifAmp is
 	port(
 		i_clock: in std_logic;
 		i_data: in std_logic;
-		o_leds: out std_logic_vector(27 downto 0);
+		o_leds: out std_logic_vector(0 to 27);
 		o_leds_strobe: out std_logic
 	);
 end SpdifAmp;
@@ -63,6 +63,9 @@ architecture rtl of SpdifAmp is
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
 	signal r_subframe_strobe_toggles: std_logic := '0';
+	signal r_audio_sample: std_logic_vector(15 downto 0);
+	signal r_channel_status: std_logic;
+	signal r_parity: std_logic;
 
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
@@ -98,7 +101,11 @@ begin
 	begin
 		if falling_edge(r_subframe_strobe) then
 			if r_py = '1' then
-				o_leds <= r_subframe(31 downto 4);
+				r_audio_sample <= r_subframe(27 downto 12);
+				r_channel_status <= r_subframe(30);
+				r_parity <= r_subframe(31);
+				o_leds <= r_audio_sample & "0110110110" & r_channel_status & r_parity;
+				
 				r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
 			end if;
 		end if;
