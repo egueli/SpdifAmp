@@ -6,8 +6,7 @@ entity SpdifAmp is
 	port(
 		i_clock: in std_logic;
 		i_data: in std_logic;
-		o_leds: out std_logic_vector(0 to 27);
-		o_leds_strobe: out std_logic
+		o_leds: out std_logic_vector(0 to 27)
 	);
 end SpdifAmp;
  
@@ -41,42 +40,24 @@ architecture rtl of SpdifAmp is
 			o_strobe: out std_logic
 		);
 	end component ShiftRegister;
-	component StrobeGenerator is
-		generic(
-			strobe_length: integer := 3
-		);
-		port(
-			i_clock: in std_logic;
-			i_toggles: in std_logic;
-			o_strobe: out std_logic
-		);
-	end component StrobeGenerator;
-	
-	function reverse_any_vector(a: in std_logic_vector)
-	return std_logic_vector is
-		variable result: std_logic_vector(a'range);
-		alias aa: std_logic_vector(a'reverse_range) is a;
-	begin
-		for i in aa'range loop
-			result(i) := aa(i);
-		end loop;
-		return result;
-	end;	
+	component AudioVisualizer is
+	port(
+			i_subframe: std_logic_vector(31 downto 4);
+			i_subframe_strobe: std_logic;
+			i_px, i_py, i_pz: std_logic;	
+			o_leds: out std_logic_vector(0 to 27)
+	);
+	end component;
 		
 	signal r_small, r_medium, r_large: std_logic;
 	signal r_payload_clock_bmc: std_logic;
+	signal r_px, r_py, r_pz: std_logic;
 	
 	signal r_payload_begin: std_logic;
 	signal r_payload_clock: std_logic;
 	signal r_payload_data: std_logic;
-	signal r_px, r_py, r_pz: std_logic;
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
-	signal r_subframe_strobe_toggles: std_logic := '0';
-	signal r_audio_sample: std_logic_vector(15 downto 0);
-	signal r_audio_absolute: std_logic_vector(15 downto 0);
-	signal r_channel_status: std_logic;
-	signal r_parity: std_logic;
 
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
@@ -108,29 +89,13 @@ begin
 		o_strobe => r_subframe_strobe
 		);
 	
-	outputPayload : process(r_subframe_strobe)
-	begin
-		if falling_edge(r_subframe_strobe) then
-			r_audio_sample <= r_subframe(27 downto 12);
-			r_audio_absolute <= std_logic_vector(abs(signed(r_audio_sample)));
-			r_channel_status <= r_subframe(30);
-			o_leds(26) <= r_channel_status;
-			r_parity <= r_subframe(31);
-			o_leds(27) <= r_parity;
-
-			if r_py = '1' then
-				o_leds(0 to 10) <= r_audio_absolute(14 downto 4);
-			elsif r_px = '1' or r_pz = '1' then
-				o_leds(11 to 21) <= reverse_any_vector(r_audio_absolute(14 downto 4));
-			end if;
-			r_subframe_strobe_toggles <= not r_subframe_strobe_toggles;
-		end if;
-	end process;
-	
-	payloadStrobe : StrobeGenerator port map (
-		i_clock => i_clock,
-		i_toggles => r_subframe_strobe_toggles,
-		o_strobe => o_leds_strobe
+	visualizer : AudioVisualizer port map(
+		i_subframe => r_subframe,
+		i_subframe_strobe => r_subframe_strobe,
+		i_px => r_px,
+		i_py => r_py,
+		i_pz => r_pz,
+		o_leds => o_leds
 	);
+		
 end rtl;
-
