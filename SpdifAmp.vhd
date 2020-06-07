@@ -11,12 +11,18 @@ entity SpdifAmp is
 end SpdifAmp;
  
 architecture rtl of SpdifAmp is
+	constant c_pll_phase_bits : integer := 24;
+	constant c_pll_phase_ratio : real := 50.0e6 / (2.0 ** c_pll_phase_bits);
+	constant c_pll_initial_frequency : integer := 3000000;
+	constant c_pll_initial_step : integer := integer(real(c_pll_initial_frequency) / c_pll_phase_ratio);
+
 	component Aes3PreambleDecoder is
 		port(
 			i_clock: in std_logic;
 			i_data: in std_logic;
 			o_payload_begin, o_payload_clock, o_small, o_medium, o_large: out std_logic;
-			o_px, o_py, o_pz: out std_logic
+			o_px, o_py, o_pz: out std_logic;
+			o_pulse_count: out integer range 0 to 63
 		);
 	end component Aes3PreambleDecoder;
 	component BiphaseMarkDecoder is
@@ -40,6 +46,19 @@ architecture rtl of SpdifAmp is
 			o_strobe: out std_logic
 		);
 	end component ShiftRegister;
+	component PLL is
+		generic(
+			PHASE_BITS : integer := c_pll_phase_bits;
+			INITIAL_STEP : std_logic_vector((c_pll_phase_bits - 2) downto 0)
+		);
+		port(
+			i_clk: in std_logic;
+			i_ce: in std_logic;
+			i_input: in std_logic;
+			o_phase: out std_logic_vector((c_pll_phase_bits - 1) downto 0);
+			o_err: out std_logic_vector(1 downto 0)
+		);
+	end component PLL;
 	component AudioVisualizer is
 	port(
 			i_subframe: std_logic_vector(31 downto 4);
@@ -58,7 +77,9 @@ architecture rtl of SpdifAmp is
 	signal r_payload_data: std_logic;
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
-
+	signal r_pulse_count: integer range 0 to 63;
+	signal r_pll_input: std_logic;
+	signal r_pll_phase: std_logic_vector((c_pll_phase_bits - 1) downto 0);
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
 		i_clock => i_clock, 
@@ -70,7 +91,8 @@ begin
 		o_large => r_large, 
 		o_px => r_px,
 		o_py => r_py,
-		o_pz => r_pz);
+		o_pz => r_pz,
+		o_pulse_count => r_pulse_count);
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
 		i_clock, 
@@ -88,14 +110,27 @@ begin
 		o_output => r_subframe(31 downto 4),
 		o_strobe => r_subframe_strobe
 		);
-	
-	visualizer : AudioVisualizer port map(
-		i_subframe => r_subframe,
-		i_subframe_strobe => r_subframe_strobe,
-		i_px => r_px,
-		i_py => r_py,
-		i_pz => r_pz,
-		o_leds => o_leds
-	);
+
+	o_leds(0) <= i_data;
+	-- o_leds(0 to 5) <= std_logic_vector(to_unsigned(r_pulse_count, 6));
 		
+	r_pll_input <= std_logic_vector(to_unsigned(r_pulse_count, 6))(3);
+	o_leds(1) <= std_logic_vector(to_unsigned(r_pulse_count, 6))(5);
+	o_leds(2) <= r_pll_input;
+	
+	encoder_pll: PLL generic map (
+		PHASE_BITS => c_pll_phase_bits,
+		INITIAL_STEP => std_logic_vector(to_unsigned(c_pll_initial_step, c_pll_phase_bits-1))
+	)
+	port map (
+		i_clk => i_clock,
+		i_ce => '1',
+		i_input => r_pll_input,
+		o_phase => r_pll_phase,
+		o_err => open
+	);
+	
+	o_leds(3 to 6) <= r_pll_phase((c_pll_phase_bits - 1) downto (c_pll_phase_bits - 4));
+	
+	-- o_leds(6 to 13) <= r_pll_phase((c_pll_phase_bits - 1) downto (c_pll_phase_bits - 8));
 end rtl;

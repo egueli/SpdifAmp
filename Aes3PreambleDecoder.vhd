@@ -8,7 +8,8 @@ entity Aes3PreambleDecoder is
 		i_clock: in std_logic;
 		i_data: in std_logic;
 		o_payload_begin, o_payload_clock, o_small, o_medium, o_large: out std_logic;
-		o_px, o_py, o_pz: out std_logic
+		o_px, o_py, o_pz: out std_logic;
+		o_pulse_count: out integer range 0 to 63
 	);
 end Aes3PreambleDecoder;
  
@@ -38,6 +39,8 @@ architecture rtl of Aes3PreambleDecoder is
 	
 	type t_state is (WS, SY, PX1, PX2, PY1, PY2, PZ1, PZ2, PL);
 	signal r_state : t_state := WS;
+	
+	signal r_pulse_count : integer range 0 to 63;
 begin
 	decoder: Aes3BaseDecoder port map (i_clock, i_data, r_large, r_medium, r_small, r_strobe_in);
 	payloadBeginStrobe: StrobeGenerator port map (i_clock, r_payload_begin, o_payload_begin);
@@ -49,6 +52,7 @@ begin
 			o_small <= r_small;
 			o_medium <= r_medium;
 			o_large <= r_large;
+			o_pulse_count <= r_pulse_count;
 			case r_state is
 				when WS =>
 					o_px <= '0';
@@ -62,6 +66,7 @@ begin
 					o_px <= '0';
 					o_py <= '0';
 					o_pz <= '0';
+					r_pulse_count <= 0;
 					if r_large = '1' then
 						r_state <= PX1;
 					elsif r_medium = '1' then
@@ -86,6 +91,7 @@ begin
 					o_pz <= '0';
 					if r_small = '1' then
 						r_payload_begin <= not r_payload_begin;
+						r_pulse_count <= 8;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -107,6 +113,7 @@ begin
 					o_pz <= '0';
 					if r_medium = '1' then
 						r_payload_begin <= not r_payload_begin;
+						r_pulse_count <= 8;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -128,6 +135,7 @@ begin
 					o_pz <= '1';
 					if r_large = '1' then
 						r_payload_begin <= not r_payload_begin;
+						r_pulse_count <= 8;
 						r_state <= PL;
 					else
 						r_state <= WS;
@@ -138,6 +146,11 @@ begin
 						r_state <= SY;
 					else
 						r_payload_clock <= not r_payload_clock;
+						if r_medium = '1' then
+							r_pulse_count <= (r_pulse_count + 2) mod 64;
+						elsif r_small = '1' then
+							r_pulse_count <= (r_pulse_count + 1) mod 64;
+						end if;
 					end if;
 			end case;
 		end if;
