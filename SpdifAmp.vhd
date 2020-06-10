@@ -11,7 +11,7 @@ entity SpdifAmp is
 end SpdifAmp;
  
 architecture rtl of SpdifAmp is
-	constant c_pll_phase_bits : integer := 24;
+	constant c_pll_phase_bits : integer := 32;
 	constant c_pll_phase_ratio : real := 50.0e6 / (2.0 ** c_pll_phase_bits);
 	constant c_pll_initial_frequency : integer := 3000000;
 	constant c_pll_initial_step : integer := integer(real(c_pll_initial_frequency) / c_pll_phase_ratio);
@@ -46,19 +46,22 @@ architecture rtl of SpdifAmp is
 			o_strobe: out std_logic
 		);
 	end component ShiftRegister;
-	component PLL is
+	component SDPLL is
 		generic(
 			PHASE_BITS : integer := c_pll_phase_bits;
-			INITIAL_STEP : std_logic_vector((c_pll_phase_bits - 2) downto 0)
+			INITIAL_PHASE_STEP : std_logic_vector((c_pll_phase_bits - 1) downto 0)
 		);
 		port(
 			i_clk: in std_logic;
+			i_ld: in std_logic;
+			i_step: in std_logic_vector((c_pll_phase_bits - 2) downto 0);
 			i_ce: in std_logic;
 			i_input: in std_logic;
+			i_lgcoeff: in std_logic_vector(4 downto 0);
 			o_phase: out std_logic_vector((c_pll_phase_bits - 1) downto 0);
 			o_err: out std_logic_vector(1 downto 0)
 		);
-	end component PLL;
+	end component SDPLL;
 	component AudioVisualizer is
 	port(
 			i_subframe: std_logic_vector(31 downto 4);
@@ -121,14 +124,17 @@ begin
 	o_leds(1) <= r_pulse_count_bits(5);
 	o_leds(2) <= r_pll_input;
 	
-	encoder_pll: PLL generic map (
+	encoder_pll: SDPLL generic map (
 		PHASE_BITS => c_pll_phase_bits,
-		INITIAL_STEP => std_logic_vector(to_unsigned(c_pll_initial_step, c_pll_phase_bits-1))
+		INITIAL_PHASE_STEP => std_logic_vector(to_unsigned(c_pll_initial_step, c_pll_phase_bits))
 	)
 	port map (
 		i_clk => i_clock,
+		i_ld => '0',
+		i_step => "0000000000000000000000000000000",
 		i_ce => '1',
 		i_input => r_pll_input,
+		i_lgcoeff => std_logic_vector(to_unsigned(5, 5)),
 		o_phase => r_pll_phase,
 		o_err => open
 	);
