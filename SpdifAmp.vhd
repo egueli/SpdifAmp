@@ -78,6 +78,7 @@ architecture rtl of SpdifAmp is
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
 	signal r_pulse_count: integer range 0 to 63;
+    signal r_pulse_count_bits: std_logic_vector(5 downto 0);
 	signal r_pll_input: std_logic;
 	signal r_pll_phase: std_logic_vector((c_pll_phase_bits - 1) downto 0);
 begin
@@ -93,6 +94,8 @@ begin
 		o_py => r_py,
 		o_pz => r_pz,
 		o_pulse_count => r_pulse_count);
+		
+    r_pulse_count_bits <= std_logic_vector(to_unsigned(r_pulse_count, 6));
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
 		i_clock, 
@@ -114,8 +117,8 @@ begin
 	o_leds(0) <= i_data;
 	-- o_leds(0 to 5) <= std_logic_vector(to_unsigned(r_pulse_count, 6));
 		
-	r_pll_input <= std_logic_vector(to_unsigned(r_pulse_count, 6))(3);
-	o_leds(1) <= std_logic_vector(to_unsigned(r_pulse_count, 6))(5);
+	r_pll_input <= r_pulse_count_bits(3);
+	o_leds(1) <= r_pulse_count_bits(5);
 	o_leds(2) <= r_pll_input;
 	
 	encoder_pll: PLL generic map (
