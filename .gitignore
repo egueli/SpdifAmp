@@ -64,3 +64,4 @@ timing/
 testbench/
 *_sim/
 output_files/
+stimulus_long.txt
