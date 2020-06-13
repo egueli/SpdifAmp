@@ -38,7 +38,7 @@ architecture tb_realworld of test_spdif is
         end loop;
     end process clock;            
     stimulus : process
-      file text_file : text open read_mode is "C:\Users\ris8a\Documents\Quartus\SpdifAmp\stimulus.txt";
+      file text_file : text open read_mode is "C:\Users\ris8a\Documents\Quartus\SpdifAmp\stimulus_long.txt";
       variable text_line : line;
       variable ok : boolean;
       variable char : character;

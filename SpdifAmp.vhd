@@ -48,8 +48,7 @@ architecture rtl of SpdifAmp is
 	end component ShiftRegister;
 	component SDPLL is
 		generic(
-			PHASE_BITS : integer := c_pll_phase_bits;
-			INITIAL_PHASE_STEP : std_logic_vector((c_pll_phase_bits - 1) downto 0)
+			PHASE_BITS : integer := c_pll_phase_bits
 		);
 		port(
 			i_clk: in std_logic;
@@ -84,6 +83,7 @@ architecture rtl of SpdifAmp is
     signal r_pulse_count_bits: std_logic_vector(5 downto 0);
 	signal r_pll_input: std_logic;
 	signal r_pll_phase: std_logic_vector((c_pll_phase_bits - 1) downto 0);
+    signal r_sample_clock: std_logic;
 begin
 	preambleDecoder: Aes3PreambleDecoder port map (
 		i_clock => i_clock, 
@@ -99,6 +99,11 @@ begin
 		o_pulse_count => r_pulse_count);
 		
     r_pulse_count_bits <= std_logic_vector(to_unsigned(r_pulse_count, 6));
+	
+	sampleClock : process(r_payload_begin) is
+    begin
+        r_sample_clock <= r_py;
+    end process;
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
 		i_clock, 
@@ -120,13 +125,12 @@ begin
 	o_leds(0) <= i_data;
 	-- o_leds(0 to 5) <= std_logic_vector(to_unsigned(r_pulse_count, 6));
 		
-	r_pll_input <= r_pulse_count_bits(3);
+	r_pll_input <= r_sample_clock;
 	o_leds(1) <= r_pulse_count_bits(5);
 	o_leds(2) <= r_pll_input;
 	
 	encoder_pll: SDPLL generic map (
-		PHASE_BITS => c_pll_phase_bits,
-		INITIAL_PHASE_STEP => std_logic_vector(to_unsigned(c_pll_initial_step, c_pll_phase_bits))
+		PHASE_BITS => c_pll_phase_bits
 	)
 	port map (
 		i_clk => i_clock,
@@ -134,7 +138,7 @@ begin
 		i_step => "0000000000000000000000000000000",
 		i_ce => '1',
 		i_input => r_pll_input,
-		i_lgcoeff => std_logic_vector(to_unsigned(5, 5)),
+		i_lgcoeff => std_logic_vector(to_unsigned(10, 5)),
 		o_phase => r_pll_phase,
 		o_err => open
 	);
