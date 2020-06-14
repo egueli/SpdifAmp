@@ -79,6 +79,7 @@ architecture rtl of SpdifAmp is
 	signal r_payload_data: std_logic;
 	signal r_subframe: std_logic_vector(31 downto 4);
 	signal r_subframe_strobe: std_logic;
+	signal r_parity_ok: std_logic;
 	signal r_pulse_count: integer range 0 to 63;
     signal r_pulse_count_bits: std_logic_vector(5 downto 0);
 	signal r_pll_input: std_logic;
@@ -123,6 +124,13 @@ begin
 		o_output => r_subframe(31 downto 4),
 		o_strobe => r_subframe_strobe
 		);
+		
+	parityCheck : process(r_subframe_strobe) is
+	begin
+		if falling_edge(r_subframe_strobe) then
+			r_parity_ok <= not (xor r_subframe(31 downto 4));
+		end if;
+	end process;
 
 	o_leds(0) <= i_data;
 	-- o_leds(0 to 5) <= std_logic_vector(to_unsigned(r_pulse_count, 6));
