@@ -49,7 +49,7 @@ module	sdpll(i_clk, i_ld, i_step, i_ce, i_input, i_lgcoeff, o_phase, o_err
 	);
 	parameter		PHASE_BITS = 32;
 	parameter	[0:0]	OPT_TRACK_FREQUENCY = 1'b1;
-	parameter	[PHASE_BITS-1:0]	INITIAL_PHASE_STEP = 32'd3788161;
+	parameter	[PHASE_BITS-1:0]	INITIAL_PHASE_STEP = 0;
 	localparam	MSB=PHASE_BITS-1;
 	//
 	input	wire	i_clk;
