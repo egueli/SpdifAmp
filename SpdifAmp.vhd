@@ -126,8 +126,7 @@ begin
 	-- o_leds(0 to 5) <= std_logic_vector(to_unsigned(r_pulse_count, 6));
 		
 	r_pll_input <= r_sample_clock;
-	o_leds(1) <= r_pulse_count_bits(5);
-	o_leds(2) <= r_pll_input;
+	o_leds(1) <= r_pll_input;
 	
 	encoder_pll: SDPLL generic map (
 		PHASE_BITS => c_pll_phase_bits
@@ -143,7 +142,11 @@ begin
 		o_err => open
 	);
 	
-	o_leds(3 to 6) <= r_pll_phase((c_pll_phase_bits - 1) downto (c_pll_phase_bits - 4));
+	o_leds(2) <= r_pll_phase(31);
+	o_leds(3) <= r_pll_phase(27);
+	o_leds(4) <= r_pll_phase(26);
+	o_leds(5) <= r_pll_phase(25);
+	o_leds(6) <= r_pll_phase(24);
 	
 	-- o_leds(6 to 13) <= r_pll_phase((c_pll_phase_bits - 1) downto (c_pll_phase_bits - 8));
 end rtl;
