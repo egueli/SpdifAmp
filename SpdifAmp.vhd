@@ -102,7 +102,9 @@ begin
 	
 	sampleClock : process(r_payload_begin) is
     begin
-        r_sample_clock <= r_py;
+		if rising_edge(r_payload_begin) then
+			r_sample_clock <= r_py;
+		end if;
     end process;
 		
 	bmcDecoder: BiphaseMarkDecoder port map (
