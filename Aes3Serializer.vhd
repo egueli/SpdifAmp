@@ -40,7 +40,7 @@ architecture rtl of Aes3Serializer is
 	signal r_output_toggle: std_logic := '0';
 	signal r_output: std_logic := '0';
 begin
-	serializer : process(i_pulse_clock, i_strobe) is
+	serializer : process(i_pulse_clock, i_strobe, i_payload, i_px, i_py, i_pz) is
 	begin
 		if i_strobe = '1' then
 			r_pulse_count <= 0;
