@@ -53,6 +53,7 @@ begin
     i_valid <= '1';
     wait until rising_edge(i_clock);
     i_valid <= '0';
+    i_payload <= (others => 'X');
 
     -- wait to do two full frames, see what happens in the output between the first and the second
     wait for aes3_clock_period * 128;
