@@ -65,3 +65,12 @@ testbench/
 *_sim/
 output_files/
 stimulus_long.txt
+
+# ignore ModelSim generated files
+vsim.wlf
+SpdifAmp.cr.mti
+SpdifAmp.mpf
+SpdifAmp.tcl
+
+# ignore ModelSim generated folders
+spdif_amp/
