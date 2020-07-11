@@ -7,6 +7,7 @@ use std.env.finish;
 library spdif_amp;
 
 library spdif_amp_sim;
+use spdif_amp_sim.sim_constants.all;
 use spdif_amp_sim.sim_subprograms.all;
 
 entity Aes3Serializer_tb is
@@ -23,6 +24,7 @@ architecture sim of Aes3Serializer_tb is
   signal o_output : std_logic;
 begin
   gen_clock(i_clock);
+  i_pulse_clock <= not i_pulse_clock after aes3_clock_period / 2;
 
   DUT : entity spdif_amp.Aes3Serializer(rtl)
 	port map (
