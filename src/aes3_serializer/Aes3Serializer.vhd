@@ -5,9 +5,9 @@ use ieee.numeric_std.all;
 entity Aes3Serializer is
 	port(
 		i_clock: in std_logic;
-		i_pulse_clock: in std_logic;
+		pulse_clock: in std_logic;
 		i_payload: in std_logic_vector(31 downto 4);
-		i_strobe: in std_logic;
+		i_valid: in std_logic;
 		i_px: in std_logic;
 		i_py: in std_logic;
 		i_pz: in std_logic;
@@ -35,39 +35,43 @@ architecture rtl of Aes3Serializer is
 		end if;
 	end function;
 	
-	signal r_pulse_clock: std_logic := '0';
+	-- The AES3 pulse clock, delayed by one clock period
+	signal pulse_clock_p1: std_logic := '0';
 	signal r_payload : std_logic_vector(31 downto 4) := (others => '0');
 	signal r_px, r_py, r_pz: std_logic;
 	signal r_pulse_count: integer range 0 to 63 := 0;
 	signal r_output_toggle: std_logic := '0';
 	signal r_output: std_logic := '0';
 begin
-	serializer : process(i_clock, i_pulse_clock, i_strobe, i_payload, i_px, i_py, i_pz) is
+	serializer : process(i_clock) is
 	begin
 		if rising_edge(i_clock) then
-			if i_strobe = '1' then
+			if i_valid = '1' then
 				r_pulse_count <= 0;
 				r_payload <= i_payload;
 				r_px <= i_px;
 				r_py <= i_py;
 				r_pz <= i_pz;
-			elsif i_pulse_clock /= r_pulse_clock and i_pulse_clock = '1' then
-				r_pulse_count <= (r_pulse_count + 1) mod 64;
-				case r_pulse_count is
-					when 0 to 7 => r_output_toggle <= make_preamble(r_pulse_count, r_px, r_py, r_pz);
-					when others => 
-						if (r_pulse_count mod 2) = 0 then
-							r_output_toggle <= '1';
-						else
-							r_output_toggle <= r_payload(r_pulse_count / 2);
-						end if;
-				end case;
+			else
+				pulse_clock_p1 <= pulse_clock;
 				
-				if r_output_toggle = '1' then
-					r_output <= not r_output;
+				if pulse_clock_p1 = '0' and pulse_clock = '1' then
+					r_pulse_count <= (r_pulse_count + 1) mod 64;
+					case r_pulse_count is
+						when 0 to 7 => r_output_toggle <= make_preamble(r_pulse_count, r_px, r_py, r_pz);
+						when others => 
+							if (r_pulse_count mod 2) = 0 then
+								r_output_toggle <= '1';
+							else
+								r_output_toggle <= r_payload(r_pulse_count / 2);
+							end if;
+					end case;
+					
+					if r_output_toggle = '1' then
+						r_output <= not r_output;
+					end if;
 				end if;
 			end if;
-			r_pulse_clock <= i_pulse_clock;
 		end if;
 	end process;
 	
