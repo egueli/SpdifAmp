@@ -70,6 +70,7 @@ vsim.wlf
 SpdifAmp.cr.mti
 SpdifAmp.mpf
 SpdifAmp.tcl
+wlf*
 
 # ignore ModelSim generated folders
 spdif_amp/
