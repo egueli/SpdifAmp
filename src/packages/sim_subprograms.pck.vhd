@@ -14,6 +14,8 @@ package sim_subprograms is
   -- Generate the clock signal
   procedure gen_clock(signal clk : inout std_logic);
 
+  -- Generate reset signal
+  procedure do_reset(signal clk : in std_logic; signal rst : out std_logic);
 end package;
 
 package body sim_subprograms is
@@ -28,5 +30,15 @@ package body sim_subprograms is
   procedure gen_clock(signal clk : inout std_logic) is
   begin
     clk <= not clk after clock_period / 2;
+  end procedure;
+
+  procedure do_reset(signal clk : in std_logic; signal rst : out std_logic) is
+  begin
+    rst <= '1';
+    LONG_RESET : for i in 0 to 10 loop
+      wait until rising_edge(clk);
+    end loop; -- LONG_RESET
+    rst <= '0';
+    wait until rising_edge(clk);
   end procedure;
 end package body;

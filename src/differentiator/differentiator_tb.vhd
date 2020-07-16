@@ -30,13 +30,7 @@ begin
 
   PROC_SEQUENCER : process
   begin
-
-    rst <= '1';
-    LONG_RESET : for i in 0 to 10 loop
-      wait until rising_edge(clk);
-    end loop; -- LONG_RESET
-    rst <= '0';
-    wait until rising_edge(clk);
+    do_reset(clk, rst);
 
     assert pulses = '0'
       report "pulse output is not 0 after reset"
