@@ -16,9 +16,9 @@ architecture rtl of differentiator is
 begin
   PROC_DIFFERENTIATOR : process(clk)
   begin
-    input_p1 <= input;
-
     if rising_edge(clk) then
+      input_p1 <= input;
+
       if rst = '1' then
         pulses <= '0';
       else

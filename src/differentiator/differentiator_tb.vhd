@@ -12,9 +12,9 @@ entity differentiator_tb is
 end differentiator_tb; 
 
 architecture sim of differentiator_tb is
-  signal clk : std_logic;
-  signal rst : std_logic;
-  signal input : std_logic;
+  signal clk : std_logic := '1';
+  signal rst : std_logic := '0';
+  signal input : std_logic := '0';
   signal pulses : std_logic;
 begin
 
@@ -26,6 +26,52 @@ begin
     pulses => pulses
   );
 
-  print_test_ok;
-  finish;
+  gen_clock(clk);
+
+  PROC_SEQUENCER : process
+  begin
+
+    rst <= '1';
+    LONG_RESET : for i in 0 to 10 loop
+      wait until rising_edge(clk);
+    end loop; -- LONG_RESET
+    rst <= '0';
+    wait until rising_edge(clk);
+
+    assert pulses = '0'
+      report "pulse output is not 0 after reset"
+      severity failure;
+
+    input <= '1';
+    wait until rising_edge(clk); -- send input
+    wait until rising_edge(clk); -- wait to detect change
+
+    assert pulses = '1'
+      report "pulse output is not 1 for transition from 0 to 1"
+      severity failure;
+
+    wait until rising_edge(clk);
+
+    assert pulses = '0'
+      report "pulse output is not 0 after stable 1"
+      severity failure;
+
+    input <= '0';
+    wait until rising_edge(clk); -- send input
+    wait until rising_edge(clk); -- wait to detect change
+
+    assert pulses = '1'
+      report "pulse output is not 1 for transition from 1 to 0"
+      severity failure;
+
+    wait until rising_edge(clk);
+
+    assert pulses = '0'
+      report "pulse output is not 0 after stable 0"
+      severity failure;
+  
+    print_test_ok;
+    finish;
+  end process; -- PROC_SEQUENCER
+
 end architecture;
