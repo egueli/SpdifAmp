@@ -84,6 +84,42 @@ begin
       report "large pulse not correctly identified"
       severity failure;
 
+
+    TOO_LARGE_PULSE : for i in 0 to 50 loop
+      wait until rising_edge(clk);
+      assert valid = '0'
+        report "valid while it shouldn't be"
+        severity failure;
+    end loop; -- TOO_LARGE_PULSE
+    send_pulse;
+    TOO_SMALL_PULSE : for i in 0 to 2 loop
+      wait until rising_edge(clk);
+      assert valid = '0'
+        report "valid while it shouldn't be"
+        severity failure;
+    end loop; -- TOO_SMALL_PULSE
+    send_pulse;
+    NO_VALID : for i in 0 to 50 loop
+      wait until rising_edge(clk);
+      assert valid = '0'
+        report "valid while it shouldn't be"
+        severity failure;      
+    end loop; -- NO_VALID
+
+    send_pulse;
+    MEDIUM_PULSE_AFTER_INVALID : for i in 0 to 16 loop
+      wait until rising_edge(clk);
+    end loop; -- MEDIUM_PULSE_AFTER_INVALID
+    send_pulse;
+
+    assert valid = '1'
+      report "not valid after medium pulse"
+      severity failure;
+    
+    assert small = '0' and medium = '1' and large = '0'
+      report "medium pulse not correctly identified"
+      severity failure;
+
     print_test_ok;
     finish;
   end process; -- PROC_SEQUENCER

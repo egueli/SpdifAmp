@@ -36,9 +36,6 @@ begin
         if not (pulses_p1 = '0' and pulses = '1') then
           if pulse_count < pulse_count_type'high then
             pulse_count <= pulse_count + 1;
-          else
-            -- pulse_count timeout; don't increment and send error (s/m/l=0)          
-            valid <= '1';            
           end if;
         else
           pulse_count <= 0;
