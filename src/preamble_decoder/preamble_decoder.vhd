@@ -21,6 +21,8 @@ entity preamble_decoder is
 end preamble_decoder; 
 
 architecture rtl of preamble_decoder is
+  signal valid_p1 : std_logic;
+
   type state_type is (IDLE, GOT_SYNC, PX1, PX2, PY1, PY2, PZ1, PZ2, PAYLOAD);
   signal state : state_type := IDLE;
 begin
@@ -33,90 +35,97 @@ begin
   begin
     if rising_edge(clk) then
       payload_begin <= '0';
+      payload_pulse_valid <= '0';
+      payload_pulse_small <= '0';
+      payload_pulse_medium <= '0';
+      valid_p1 <= valid;
 
       if rst = '1' then
         state <= IDLE;        
         type_x <= '0';
         type_y <= '0';
         type_z <= '0';
+        valid_p1 <= '0';
       else
-        case state is
-          when IDLE =>
-            type_x <= '0';
-            type_y <= '0';
-            type_z <= '0';
-            if large = '1' then
-              state <= GOT_SYNC;
-            end if;  
-        
-          when GOT_SYNC =>
-            type_x <= '0';
-            type_y <= '0';
-            type_z <= '0';
-            if large = '1' then
-              state <= PX1;
-              type_x <= '1';
-            elsif medium = '1' then
-              state <= PY1;
-              type_y <= '1';
-            elsif small = '1' then
-              state <= PZ1;
-              type_z <= '1';
-            end if;
-
-          when PX1 =>
-            if small = '1' then
-              state <= PX2;
-            else
-              state <= IDLE;
-            end if;
-
-          when PX2 =>
-            if small = '1' then
-              on_payload_begin;
-            else
-              state <= IDLE;
-            end if;
-
-          when PY1 =>
-            if small = '1' then
-              state <= PY2;
-            else
-              state <= IDLE;
-            end if;
-
-          when PY2 =>
-            if medium = '1' then
-              on_payload_begin;
-            else
-              state <= IDLE;
-            end if;
-
-          when PZ1 =>
-            if small = '1' then
-              state <= PZ2;
-            else
-              state <= IDLE;
-            end if;
+        if valid_p1 = '0' and valid = '1' then
+          case state is
+            when IDLE =>
+              type_x <= '0';
+              type_y <= '0';
+              type_z <= '0';
+              if large = '1' then
+                state <= GOT_SYNC;
+              end if;  
           
-          when PZ2 =>
-            if large = '1' then
-              on_payload_begin;
-            else
-              state <= IDLE;
-            end if;
+            when GOT_SYNC =>
+              type_x <= '0';
+              type_y <= '0';
+              type_z <= '0';
+              if large = '1' then
+                state <= PX1;
+                type_x <= '1';
+              elsif medium = '1' then
+                state <= PY1;
+                type_y <= '1';
+              elsif small = '1' then
+                state <= PZ1;
+                type_z <= '1';
+              end if;
+  
+            when PX1 =>
+              if small = '1' then
+                state <= PX2;
+              else
+                state <= IDLE;
+              end if;
+  
+            when PX2 =>
+              if small = '1' then
+                on_payload_begin;
+              else
+                state <= IDLE;
+              end if;
+  
+            when PY1 =>
+              if small = '1' then
+                state <= PY2;
+              else
+                state <= IDLE;
+              end if;
+  
+            when PY2 =>
+              if medium = '1' then
+                on_payload_begin;
+              else
+                state <= IDLE;
+              end if;
+  
+            when PZ1 =>
+              if small = '1' then
+                state <= PZ2;
+              else
+                state <= IDLE;
+              end if;
             
-          when PAYLOAD =>
-            if large = '1' then
-              state <= GOT_SYNC;
-            elsif medium = '1' then
-              payload_pulse_medium <= '1';
-              payload_pulse_valid <= '1';
-            elsif small = '1' then
-              payload_pulse_small <= '1';
-              payload_pulse_valid <= '1';
-            end if;
-        end case;
+            when PZ2 =>
+              if large = '1' then
+                on_payload_begin;
+              else
+                state <= IDLE;
+              end if;
+              
+            when PAYLOAD =>
+              if large = '1' then
+                state <= GOT_SYNC;
+              elsif medium = '1' then
+                payload_pulse_medium <= '1';
+                payload_pulse_valid <= '1';
+              elsif small = '1' then
+                payload_pulse_small <= '1';
+                payload_pulse_valid <= '1';
+              end if;
+          end case;
+        end if;
       end if;
     end if;
   end process; -- PROC_PREAMBLE_FSM
