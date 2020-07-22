@@ -49,11 +49,6 @@ begin
   PROC_SEQUENCER : process
     procedure do_pulse(p_large : std_logic; p_medium : std_logic; p_small : std_logic) is
     begin
-      valid <= '0';
-      large <= '0';
-      medium <= '0';
-      small <= '0';
-      wait until rising_edge(clk);
       large <= p_large;
       medium <= p_medium;
       small <= p_small;      
@@ -73,22 +68,29 @@ begin
     begin
       do_pulse('0', '0', '1');
     end procedure;
+    procedure do_no_pulse is
+    begin
+      valid <= '0';
+      wait until rising_edge(clk);
+    end procedure;
 
   begin
     do_reset(clk, rst);
 
-    do_large_pulse;
+    -- preamble
+    do_large_pulse; -- sync
     do_small_pulse;
+    do_no_pulse; -- rest a bit, should still work
     do_small_pulse;
     do_large_pulse;
 
+    -- payload
     do_medium_pulse;
     do_medium_pulse;
     do_small_pulse;
     do_small_pulse;
     do_small_pulse;
     do_small_pulse;
-
     do_large_pulse;
     do_medium_pulse;
 

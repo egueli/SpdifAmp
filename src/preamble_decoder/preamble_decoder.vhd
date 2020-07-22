@@ -21,8 +21,6 @@ entity preamble_decoder is
 end preamble_decoder; 
 
 architecture rtl of preamble_decoder is
-  signal valid_p1 : std_logic;
-
   type state_type is (IDLE, GOT_SYNC, PX1, PX2, PY1, PY2, PZ1, PZ2, PAYLOAD);
   signal state : state_type := IDLE;
 begin
@@ -38,16 +36,14 @@ begin
       payload_pulse_valid <= '0';
       payload_pulse_small <= '0';
       payload_pulse_medium <= '0';
-      valid_p1 <= valid;
 
       if rst = '1' then
         state <= IDLE;        
         type_x <= '0';
         type_y <= '0';
         type_z <= '0';
-        valid_p1 <= '0';
       else
-        if valid_p1 = '0' and valid = '1' then
+        if valid = '1' then
           case state is
             when IDLE =>
               type_x <= '0';
