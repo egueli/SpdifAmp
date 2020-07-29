@@ -2,6 +2,7 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /deserializer_tb/DUT/clk
 add wave -noupdate /deserializer_tb/DUT/rst
+add wave -noupdate /deserializer_tb/DUT/clear
 add wave -noupdate /deserializer_tb/DUT/input
 add wave -noupdate /deserializer_tb/DUT/in_valid
 add wave -noupdate /deserializer_tb/DUT/output

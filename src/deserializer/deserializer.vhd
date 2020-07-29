@@ -9,6 +9,7 @@ entity deserializer is
   port (
     clk : in std_logic;
     rst : in std_logic;
+    clear : in std_logic;
     input : in std_logic;
     in_valid : in std_logic;
     output : out std_logic_vector((NUM_BITS - 1) downto 0);
@@ -26,7 +27,7 @@ begin
   begin
     if rising_edge(clk) then
       out_valid_n1 <= '0';
-      if rst = '1' then
+      if rst = '1' or clear = '1' then
         data <= (others => '0');  
         count <= 0;
         output <= (others => '0');

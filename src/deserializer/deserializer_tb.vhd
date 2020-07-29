@@ -14,6 +14,7 @@ end deserializer_tb;
 architecture sim of deserializer_tb is
   signal clk : std_logic := '1';
   signal rst : std_logic := '1';
+  signal clear : std_logic := '0';
   signal input : std_logic := '0';
   signal in_valid : std_logic := '0';
   signal output : std_logic_vector(3 downto 0);
@@ -28,6 +29,7 @@ begin
   port map (
     clk => clk,
     rst => rst,
+    clear => clear,
     input => input,
     in_valid => in_valid,
     output => output,
@@ -67,9 +69,9 @@ begin
       report "Output different than expected"
       severity failure;
 
-    rst <= '1';
+    clear <= '1';
     wait until rising_edge(clk);
-    rst <= '0';
+    clear <= '0';
 
 
 
