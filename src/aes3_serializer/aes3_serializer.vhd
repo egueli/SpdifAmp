@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity Aes3Serializer is
+entity aes3_serializer is
 	port(
 		i_clock: in std_logic;
 		pulse_clock: in std_logic;
@@ -13,9 +13,9 @@ entity Aes3Serializer is
 		i_pz: in std_logic;
 		o_output: out std_logic
 	);
-end Aes3Serializer;
+end aes3_serializer;
 
-architecture rtl of Aes3Serializer is
+architecture rtl of aes3_serializer is
 	function make_preamble(
 		pulse_count : integer;
 		x : std_logic;

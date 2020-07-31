@@ -1,3 +1,3 @@
 source src/tcl/run.tcl
 
-runTb Aes3Serializer_tb [collectCmdLineArgs]
+runTb aes3_serializer_tb [collectCmdLineArgs]
