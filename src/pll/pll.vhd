@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- Ported to VHDL from https://github.com/ZipCPU/dpll/blob/master/rtl/sdpll.v
+
 entity pll is
   generic (
     PHASE_BITS : integer;
