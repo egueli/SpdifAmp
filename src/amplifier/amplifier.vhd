@@ -21,7 +21,7 @@ entity amplifier is
 end amplifier; 
 
 architecture rtl of amplifier is
-  constant full_sample_high_bit : integer := (SAMPLE_BITS + GAIN_BITS - 1)-1;
+  constant full_sample_high_bit : integer := SAMPLE_BITS + GAIN_BITS - 1;
   constant out_sample_high_bit : integer := full_sample_high_bit - GAIN_SCALE;
   constant out_sample_low_bit : integer := out_sample_high_bit - SAMPLE_BITS + 1;
   signal full_sample : signed(full_sample_high_bit downto 0);
