@@ -22,7 +22,9 @@ architecture sim of amplifier_tb is
   signal rst : std_logic := '0';
   signal gain : unsigned(GAIN_BITS-1 downto 0);
   signal in_sample : signed(SAMPLE_BITS-1 downto 0);
+  signal in_sample_valid : std_logic := '0';
   signal out_sample : signed(SAMPLE_BITS-1 downto 0);
+  signal out_sample_valid : std_logic;
 begin
   DUT : entity spdif_amp.amplifier(rtl)
   generic map (
@@ -35,20 +37,32 @@ begin
     rst => rst,
     gain => gain,
     in_sample => in_sample,
-    out_sample => out_sample
+    in_sample_valid => in_sample_valid,
+    out_sample => out_sample,
+    out_sample_valid => out_sample_valid
   );
+
+  gen_clock(clk);
 
   PROC_SEQUENCER : process
   begin
-    in_sample <= to_signed(100, SAMPLE_BITS);
-    gain <= to_unsigned(1, GAIN_BITS);
+    do_reset(clk, rst);
 
-    wait for 0 ns;
+    gain <= shift_left(to_unsigned(1, GAIN_BITS), GAIN_SCALE); -- unitary gain
+    in_sample <= to_signed(100, SAMPLE_BITS);
+    in_sample_valid <= '1';
+    wait until rising_edge(clk);
+    in_sample_valid <= '0';
+    wait until rising_edge(clk);
+
+    assert out_sample_valid = '1'
+      report "out sample is not valid when expected"
+      severity failure;
+
     assert out_sample = 100
       report "out sample is not 100 as expected: " & integer'image(to_integer(out_sample))
       severity failure;
 
-    wait for 0 ns;
     print_test_ok;
     finish;
   end process; -- PROC_SEQUENCER
