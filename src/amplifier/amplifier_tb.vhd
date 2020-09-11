@@ -45,24 +45,38 @@ begin
   gen_clock(clk);
 
   PROC_SEQUENCER : process
+    procedure check_amplification(
+      constant in_sample_num : integer;
+      constant gain_num : integer;
+      constant expected_out_sample : integer
+    ) is
+    begin
+      gain <= to_unsigned(gain_num, GAIN_BITS);
+      in_sample <= to_signed(in_sample_num, SAMPLE_BITS);
+      in_sample_valid <= '1';
+      wait until rising_edge(clk);
+      in_sample_valid <= '0';
+      wait until rising_edge(clk);
+
+      assert out_sample_valid = '1'
+        report "out sample is not valid when expected"
+        severity failure;
+
+      assert out_sample = expected_out_sample
+        report "out sample is not " & integer'image(expected_out_sample) & " as expected, but " & integer'image(to_integer(out_sample))
+        severity failure;
+    end procedure;
   begin
     do_reset(clk, rst);
 
-    gain <= shift_left(to_unsigned(1, GAIN_BITS), GAIN_SCALE); -- unitary gain
-    in_sample <= to_signed(100, SAMPLE_BITS);
-    in_sample_valid <= '1';
-    wait until rising_edge(clk);
-    in_sample_valid <= '0';
-    wait until rising_edge(clk);
-
-    assert out_sample_valid = '1'
-      report "out sample is not valid when expected"
-      severity failure;
-
-    assert out_sample = 100
-      report "out sample is not 100 as expected: " & integer'image(to_integer(out_sample))
-      severity failure;
-
+    check_amplification(100, 16, 100);
+    check_amplification(0, 16, 0);
+    check_amplification(-100, 16, -100);
+    check_amplification(100, 8, 50);
+    check_amplification(100, 32, 200);
+    check_amplification(32767, 16, 32767);
+    check_amplification(-32768, 16, -32768);
+    
     print_test_ok;
     finish;
   end process; -- PROC_SEQUENCER
