@@ -3,7 +3,10 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /parity_tb/DUT/clk
 add wave -noupdate /parity_tb/DUT/rst
 add wave -noupdate /parity_tb/DUT/input
+add wave -noupdate /parity_tb/DUT/valid
+add wave -noupdate /parity_tb/DUT/valid_p1
 add wave -noupdate /parity_tb/DUT/out_parity
+add wave -noupdate /parity_tb/DUT/out_valid
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ns} 0}
 quietly wave cursor active 0
