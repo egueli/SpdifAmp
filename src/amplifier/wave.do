@@ -10,8 +10,8 @@ add wave -noupdate /amplifier_tb/DUT/out_sample_valid
 add wave -noupdate /amplifier_tb/DUT/in_sample_valid_p1
 add wave -noupdate /amplifier_tb/DUT/full_sample
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {0 ns} 0}
-quietly wave cursor active 0
+WaveRestoreCursors {{Cursor 1} {267 ns} 0}
+quietly wave cursor active 1
 configure wave -namecolwidth 213
 configure wave -valuecolwidth 46
 configure wave -justifyvalue left
@@ -26,4 +26,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {294 ns}
+WaveRestoreZoom {281 ns} {575 ns}

@@ -11,16 +11,14 @@ use spdif_amp_sim.sim_subprograms.all;
 
 entity amplifier_tb is
   generic(
-    SAMPLE_BITS : integer := 16;
-    GAIN_BITS : integer := 8;
-    GAIN_SCALE : integer := 4
+    SAMPLE_BITS : integer := 16
   );
 end amplifier_tb; 
 
 architecture sim of amplifier_tb is
   signal clk : std_logic := '1';
   signal rst : std_logic := '0';
-  signal gain : unsigned(GAIN_BITS-1 downto 0);
+  signal gain : natural range 3 downto 0;
   signal in_sample : signed(SAMPLE_BITS-1 downto 0);
   signal in_sample_valid : std_logic := '0';
   signal out_sample : signed(SAMPLE_BITS-1 downto 0);
@@ -28,9 +26,7 @@ architecture sim of amplifier_tb is
 begin
   DUT : entity spdif_amp.amplifier(rtl)
   generic map (
-    SAMPLE_BITS => SAMPLE_BITS,
-    GAIN_BITS => GAIN_BITS,
-    GAIN_SCALE => GAIN_SCALE
+    SAMPLE_BITS => SAMPLE_BITS
   )
   port map (
     clk => clk,
@@ -47,11 +43,11 @@ begin
   PROC_SEQUENCER : process
     procedure check_amplification(
       constant in_sample_num : integer;
-      constant gain_num : integer;
+      constant gain_num : natural range 3 downto 0;
       constant expected_out_sample : integer
     ) is
     begin
-      gain <= to_unsigned(gain_num, GAIN_BITS);
+      gain <= gain_num;
       in_sample <= to_signed(in_sample_num, SAMPLE_BITS);
       in_sample_valid <= '1';
       wait until rising_edge(clk);
@@ -69,13 +65,18 @@ begin
   begin
     do_reset(clk, rst);
 
-    check_amplification(100, 16, 100);
-    check_amplification(0, 16, 0);
-    check_amplification(-100, 16, -100);
-    check_amplification(100, 8, 50);
-    check_amplification(100, 32, 200);
-    check_amplification(32767, 16, 32767);
-    check_amplification(-32768, 16, -32768);
+    -- Check unity gain
+    check_amplification(100, 0, 100);
+    check_amplification(0, 0, 0);
+    check_amplification(-100, 0, -100);
+    check_amplification(32767, 0, 32767);
+    check_amplification(-32768, 0, -32768);
+    -- Check amplification
+    check_amplification(100, 1, 200);
+    check_amplification(100, 2, 400);
+    check_amplification(100, 3, 800);
+    -- Check amplification overflow
+    check_amplification(10000, 3, 14464); -- garbage output
     
     print_test_ok;
     finish;
