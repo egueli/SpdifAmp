@@ -35,13 +35,37 @@ begin
   );
 
   SEQUENCER_PROC : process
+    procedure check_processor(
+      constant input : integer;
+      constant expected_output : integer
+    ) is
+    begin
+      in_subframe <= std_logic_vector(to_unsigned(input, in_subframe'length));
+      in_subframe_valid <= '1';
+      wait until rising_edge(clk);
+      in_subframe_valid <= '0';
+      wait until rising_edge(clk);
+      wait until rising_edge(clk);
+      wait until rising_edge(clk);
+
+      assert out_subframe_valid = '1'
+        report "out subframe is not valid when expected"
+        severity failure;
+      
+      assert out_subframe = std_logic_vector(to_unsigned(expected_output, out_subframe'length))
+        report "out subframe is different than expected"
+        severity failure;
+      
+    end procedure;
   begin
     do_reset(clk, rst);
 
-    wait until rising_edge(clk);
-    assert false
-      report "Replace this with your test cases"
-      severity failure;
+    -- all-zero subframes go as-is
+    check_processor(16#0000000#, 16#0000000#);
+    -- non-zero subframes with correct parity go as-is
+    check_processor(16#A55AA55#, 16#A55AA55#);
+    -- non-zero subframes with wrong parity are cleared
+    check_processor(16#A55AA54#, 16#0000000#);
 
     finish;
   end process;

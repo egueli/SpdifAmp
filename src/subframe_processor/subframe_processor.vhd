@@ -18,26 +18,33 @@ end subframe_processor;
 architecture rtl of subframe_processor is
   signal parity_check_in_valid : std_logic;
   signal parity_check_input : std_logic_vector(27 downto 0);
+  signal parity_check_valid : std_logic;
+  signal parity_check : std_logic;
 
   type state_type is (IDLE, WAIT_PARITY_CHECK, WAIT_AMPLIFICATION, WAIT_PARITY_GEN);
   signal state : state_type;
 begin
-  PARITY_CHECK : entity spdif_amp.parity(rtl)
+  INPUT_PARITY_CHECK : entity spdif_amp.parity(rtl)
   generic map(NUM_BITS => 28)
   port map(
     clk => clk,
     rst => rst,
     input => parity_check_input,
     valid => parity_check_in_valid,
-    out_parity => open,
-    out_valid => open
+    out_parity => parity_check,
+    out_valid => parity_check_valid
   );
 
   FSM_PROC : process(clk)
   begin
     if rising_edge(clk) then
+      out_subframe_valid <= '0';
+      parity_check_in_valid <= '0';
       if rst = '1' then
         state <= IDLE;
+        parity_check_in_valid <= '0';
+        parity_check_input <= (others => '0');
+        out_subframe <= (others => '0');
       else
         case state is
           when IDLE =>
@@ -47,23 +54,19 @@ begin
               state <= WAIT_PARITY_CHECK;
             end if;
           when WAIT_PARITY_CHECK =>
+            if parity_check_valid = '1' then
+              if parity_check = '1' then
+                out_subframe <= (others => '0');
+              else
+                out_subframe <= in_subframe;
+              end if;
+              out_subframe_valid <= '1';
+              state <= IDLE;
+            end if;
+            
           when WAIT_AMPLIFICATION =>
           when WAIT_PARITY_GEN =>
-  
         end case;
-      end if;
-    end if;
-  end process;
-
-  PROCESSOR_PROC : process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst = '1' then
-        out_subframe_valid <= '0';
-        
-      else
-        
-        
       end if;
     end if;
   end process;
