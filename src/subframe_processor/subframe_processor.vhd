@@ -77,6 +77,7 @@ begin
   FSM_PROC : process(clk)
   begin
     if rising_edge(clk) then
+      out_subframe <= (others => '0');
       out_subframe_valid <= '0';
       parity_check_in_valid <= '0';
       amplify_sample_valid <= '0';
