@@ -73,7 +73,7 @@ begin
       toggle_medium;
   
       -- send a payload made of all ones
-      ALL_ZEROS : for i in 1 to 28 loop
+      ALL_ONES : for i in 1 to 28 loop
         toggle_small;
         toggle_small;
       end loop; -- ALL_ZEROS
