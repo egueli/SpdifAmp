@@ -23,9 +23,15 @@ architecture rtl of subframe_processor is
   signal parity_check_valid : std_logic;
   signal parity_check : std_logic;
 
+  signal sample_in : std_logic_vector(19 downto 0);
   signal amplify_sample_valid : std_logic;
   signal amplified_sample_valid : std_logic;
   signal amplified_sample : signed(19 downto 0);
+
+  signal parity_gen_in : std_logic_vector(26 downto 0);
+  signal parity_gen_in_valid: std_logic;
+  signal parity_gen : std_logic;
+  signal parity_gen_valid : std_logic;
   
   type state_type is (IDLE, WAIT_PARITY_CHECK, WAIT_AMPLIFICATION, WAIT_PARITY_GEN);
   signal state : state_type;
@@ -41,16 +47,31 @@ begin
     out_valid => parity_check_valid
   );
 
+  sample_in <= incoming_subframe(23 downto 4);
+
   AMPLIFIER : entity spdif_amp.amplifier(rtl)
   generic map(SAMPLE_BITS => 20)
   port map(
     clk => clk,
     rst => rst,
     gain => gain,
-    in_sample => signed(incoming_subframe(23 downto 4)),
+    in_sample => signed(sample_in),
     in_sample_valid => amplify_sample_valid,
     out_sample => amplified_sample,
     out_sample_valid => amplified_sample_valid
+  );
+
+  parity_gen_in <= incoming_subframe(26 downto 24) & std_logic_vector(amplified_sample) & incoming_subframe(3 downto 0);
+
+  PARITY_GENERATOR : entity spdif_amp.parity(rtl)
+  generic map(NUM_BITS => 27)
+  port map(
+    clk => clk,
+    rst => rst,
+    input => parity_gen_in,
+    valid => parity_gen_in_valid,
+    out_parity => parity_gen,
+    out_valid => parity_gen_valid
   );
 
   FSM_PROC : process(clk)
@@ -59,6 +80,7 @@ begin
       out_subframe_valid <= '0';
       parity_check_in_valid <= '0';
       amplify_sample_valid <= '0';
+      parity_gen_in_valid <= '0';
       if rst = '1' then
         state <= IDLE;
         incoming_subframe <= (others => '0');
@@ -90,14 +112,21 @@ begin
 
           when WAIT_AMPLIFICATION =>
             if amplified_sample_valid = '1' then
-              out_subframe(3 downto 0) <= incoming_subframe(3 downto 0);
-              out_subframe(23 downto 4) <= std_logic_vector(amplified_sample);
-              out_subframe(27 downto 23) <= incoming_subframe(27 downto 23);
-              out_subframe_valid <= '1';
-              state <= IDLE;
+              -- We have the amplified sample. Generate the parity bit.
+              parity_gen_in_valid <= '1';
+              state <= WAIT_PARITY_GEN;
             end if;
 
           when WAIT_PARITY_GEN =>
+            if parity_gen_valid = '1' then
+              -- We now have all the information to assemble the subframe.
+              out_subframe(27) <= parity_gen;
+              out_subframe(26 downto 24) <= incoming_subframe(26 downto 24);
+              out_subframe(23 downto 4) <= std_logic_vector(amplified_sample);
+              out_subframe(3 downto 0) <= incoming_subframe(3 downto 0);
+              out_subframe_valid <= '1';
+              state <= IDLE;
+            end if;
         end case;
       end if;
     end if;

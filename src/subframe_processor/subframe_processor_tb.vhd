@@ -57,7 +57,10 @@ begin
         severity failure;
       
       assert out_subframe = expected_output
-        report "out subframe is different than expected"
+        report "out subframe is different than expected: expected " 
+          & to_hstring(expected_output)
+          & " actual "
+          & to_hstring(out_subframe)
         severity failure;
       
     end procedure;
@@ -88,17 +91,22 @@ begin
   begin
     do_reset(clk, rst);
 
-    -- begin tests with unity gain, so samples aren't altered.
+    report "tests with unity gain, so samples aren't altered";
 
-    -- all-zero subframes go as-is
+    report "all-zero subframes go as-is";
     check_processor(16#0000000#, 16#0000000#);
-    -- non-zero subframes with correct parity go as-is
+    report "non-zero subframes with correct parity go as-is";
     check_processor(16#A55AA55#, 16#A55AA55#);
-    -- non-zero subframes with wrong parity are cleared
+    report "non-zero subframes with wrong parity are cleared";
     check_processor(16#A55AA54#, 16#0000000#);
 
+    report "tests with 2x gain";
     gain <= 1;
-    check_processor(sample_subframe(16#0400#), sample_subframe(16#0800#));
+    report "amplification that doesn't change parity";
+    check_processor(sample_subframe(16#00400#), sample_subframe(16#00800#));
+    report "amplification that does change parity";
+    check_processor(sample_subframe(16#FFC00#), sample_subframe(16#FF800#));
+
 
     finish;
   end process;
