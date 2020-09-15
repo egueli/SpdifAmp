@@ -78,24 +78,18 @@ begin
       end case;
     end procedure;
 
-    procedure send_subframe_z_0 is
+    procedure send_subframe_payload(
+      constant payload : subframe_payload_t
+    ) is
     begin
-      send_subframe_preamble(TYPE_Z);
-  
-      -- send a payload made of all zeros
-      ALL_ZEROS : for i in 1 to 28 loop
-        toggle_medium;
-      end loop; -- ALL_ZEROS
-    end procedure;
-    procedure send_subframe_y_1 is
-    begin
-      send_subframe_preamble(TYPE_Y);
-  
-      -- send a payload made of all ones
-      ALL_ONES : for i in 1 to 28 loop
-        toggle_small;
-        toggle_small;
-      end loop; -- ALL_ZEROS
+      for i in 0 to 27 loop
+        if payload(i) = '1' then
+          toggle_small;
+          toggle_small;         
+        else
+          toggle_medium;
+        end if;
+      end loop;
     end procedure;
   begin
     rst_button <= '0';
@@ -106,17 +100,21 @@ begin
 
     -- We need to send a few dummy subframes to allow the PLL to get in sync
     PLL_SYNC : for i in 0 to 50 loop
-      send_subframe_z_0;    
+      send_subframe_preamble(TYPE_Z);
+      send_subframe_payload((27 downto 0 => '0'));
     end loop; -- PLL_SYNC
 
-    -- Now send two different subframes; manually check that the clock is stable
-    send_subframe_y_1;
-    send_subframe_z_0;
-    send_subframe_y_1;
-    send_subframe_z_0;
-    send_subframe_y_1;
-    send_subframe_z_0;
+    report "Z subframe with first half of payload bits to 1";
+    send_subframe_preamble(TYPE_Z);
+    send_subframe_payload((0 to 13 => '1', 14 to 27 => '0'));
 
+    report "Y subframe with second half of payload bits to 1";
+    send_subframe_preamble(TYPE_Y);
+    send_subframe_payload((0 to 13 => '0', 14 to 27 => '1'));
+
+    report "X subframe with all payload bits to 0";
+    send_subframe_preamble(TYPE_X);
+    send_subframe_payload((0 to 27 => '0'));
 
     print_test_ok;
     finish;
