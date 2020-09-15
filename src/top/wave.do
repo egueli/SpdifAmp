@@ -8,8 +8,10 @@ add wave -noupdate /top_tb/DUT/rst
 add wave -noupdate /top_tb/DUT/subframe_type_x
 add wave -noupdate /top_tb/DUT/subframe_type_y
 add wave -noupdate /top_tb/DUT/subframe_type_z
-add wave -noupdate /top_tb/DUT/subframe_payload
-add wave -noupdate /top_tb/DUT/subframe_valid
+add wave -noupdate /top_tb/DUT/subframe_in_payload
+add wave -noupdate /top_tb/DUT/subframe_in_valid
+add wave -noupdate /top_tb/DUT/subframe_out_payload
+add wave -noupdate /top_tb/DUT/subframe_out_valid
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ns} 0}
 quietly wave cursor active 0
@@ -27,4 +29,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {20886 ns}
+WaveRestoreZoom {625895 ns} {646781 ns}
