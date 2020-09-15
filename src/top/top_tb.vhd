@@ -53,7 +53,7 @@ begin
     end procedure;
 
     procedure send_subframe_preamble(
-      constant subframe_type : payload_type
+      constant subframe_type : subframe_type_t
     ) is
     begin
       case subframe_type is
