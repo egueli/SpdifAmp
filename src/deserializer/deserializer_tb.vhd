@@ -65,7 +65,7 @@ begin
       report "Output not valid after sending the right amount of bits"
       severity failure;
     
-    assert output = "1010"
+    assert output = "0101"
       report "Output different than expected"
       severity failure;
 
@@ -101,7 +101,7 @@ begin
       report "Output not valid after sending the right amount of bits"
       severity failure;
     
-    assert output = "0011"
+    assert output = "1100"
       report "Output different than expected"
       severity failure;
 
