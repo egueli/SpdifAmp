@@ -4,10 +4,21 @@ add wave -noupdate /subframe_processor_tb/DUT/clk
 add wave -noupdate /subframe_processor_tb/DUT/rst
 add wave -noupdate /subframe_processor_tb/DUT/in_subframe
 add wave -noupdate /subframe_processor_tb/DUT/in_subframe_valid
+add wave -noupdate /subframe_processor_tb/DUT/gain
 add wave -noupdate /subframe_processor_tb/DUT/out_subframe
 add wave -noupdate /subframe_processor_tb/DUT/out_subframe_valid
+add wave -noupdate /subframe_processor_tb/DUT/incoming_subframe
 add wave -noupdate /subframe_processor_tb/DUT/parity_check_in_valid
-add wave -noupdate /subframe_processor_tb/DUT/parity_check_input
+add wave -noupdate /subframe_processor_tb/DUT/parity_check_valid
+add wave -noupdate /subframe_processor_tb/DUT/parity_check
+add wave -noupdate /subframe_processor_tb/DUT/sample_in
+add wave -noupdate /subframe_processor_tb/DUT/amplify_sample_valid
+add wave -noupdate /subframe_processor_tb/DUT/amplified_sample_valid
+add wave -noupdate /subframe_processor_tb/DUT/amplified_sample
+add wave -noupdate /subframe_processor_tb/DUT/parity_gen_in
+add wave -noupdate /subframe_processor_tb/DUT/parity_gen_in_valid
+add wave -noupdate /subframe_processor_tb/DUT/parity_gen
+add wave -noupdate /subframe_processor_tb/DUT/parity_gen_valid
 add wave -noupdate /subframe_processor_tb/DUT/state
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ns} 0}
