@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 use std.env.finish;
 
 library spdif_amp;
+use spdif_amp.types.all;
 
 library spdif_amp_sim;
 use spdif_amp_sim.sim_subprograms.all;
@@ -51,13 +52,35 @@ begin
       wait for half_bit_duration;
     end procedure;
 
+    procedure send_subframe_preamble(
+      constant subframe_type : payload_type
+    ) is
+    begin
+      case subframe_type is
+        when TYPE_X =>
+          toggle_large;
+          toggle_large;
+          toggle_small;
+          toggle_small;
+        
+        when TYPE_Y =>
+          toggle_large;
+          toggle_medium;
+          toggle_small;
+          toggle_medium;
+          
+        when TYPE_Z =>
+          toggle_large;
+          toggle_small;
+          toggle_small;
+          toggle_large; 
+      
+      end case;
+    end procedure;
+
     procedure send_subframe_z_0 is
     begin
-      -- send preamble type Z
-      toggle_large;
-      toggle_small;
-      toggle_small;
-      toggle_large;
+      send_subframe_preamble(TYPE_Z);
   
       -- send a payload made of all zeros
       ALL_ZEROS : for i in 1 to 28 loop
@@ -66,11 +89,7 @@ begin
     end procedure;
     procedure send_subframe_y_1 is
     begin
-      -- send preamble type Y
-      toggle_large;
-      toggle_medium;
-      toggle_small;
-      toggle_medium;
+      send_subframe_preamble(TYPE_Y);
   
       -- send a payload made of all ones
       ALL_ONES : for i in 1 to 28 loop
