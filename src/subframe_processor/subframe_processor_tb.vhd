@@ -9,6 +9,7 @@ library spdif_amp;
 
 library spdif_amp_sim;
 use spdif_amp_sim.sim_subprograms.all;
+use spdif_amp_sim.sim_constants.all;
 
 entity subframe_processor_tb is
 end subframe_processor_tb;
@@ -45,8 +46,8 @@ begin
       wait until rising_edge(clk);
       in_subframe_valid <= '0';
       wait until rising_edge(clk);
-      wait until rising_edge(clk);
-      wait until rising_edge(clk);
+
+      wait until out_subframe_valid'event for clock_period * 10;
 
       assert out_subframe_valid = '1'
         report "out subframe is not valid when expected"
