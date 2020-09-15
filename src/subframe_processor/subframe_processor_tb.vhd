@@ -17,6 +17,7 @@ end subframe_processor_tb;
 architecture sim of subframe_processor_tb is
   signal clk : std_logic := '1';
   signal rst : std_logic := '1';
+  signal gain : natural range 3 downto 0 := 0;
   signal in_subframe : std_logic_vector(27 downto 0) := (others => '0');
   signal in_subframe_valid : std_logic := '0';
   signal out_subframe : std_logic_vector(27 downto 0);
@@ -31,6 +32,7 @@ begin
     rst => rst,
     in_subframe => in_subframe,
     in_subframe_valid => in_subframe_valid,
+    gain => gain,
     out_subframe => out_subframe,
     out_subframe_valid => out_subframe_valid
   );
@@ -60,6 +62,8 @@ begin
     end procedure;
   begin
     do_reset(clk, rst);
+
+    -- begin tests with unity gain, so samples aren't altered.
 
     -- all-zero subframes go as-is
     check_processor(16#0000000#, 16#0000000#);

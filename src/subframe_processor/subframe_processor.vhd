@@ -10,6 +10,7 @@ entity subframe_processor is
     rst : in std_logic;
     in_subframe : in std_logic_vector(27 downto 0);
     in_subframe_valid : in std_logic;
+    gain : in natural range 3 downto 0;
     out_subframe : out std_logic_vector(27 downto 0);
     out_subframe_valid : out std_logic
   );
@@ -45,7 +46,7 @@ begin
   port map(
     clk => clk,
     rst => rst,
-    gain => 0,
+    gain => gain,
     in_sample => signed(incoming_subframe(23 downto 4)),
     in_sample_valid => amplify_sample_valid,
     out_sample => amplified_sample,
