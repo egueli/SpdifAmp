@@ -40,8 +40,8 @@ begin
 
   SEQUENCER_PROC : process
     procedure check_processor(
-      constant input : subframe_payload_type;
-      constant expected_output : subframe_payload_type
+      constant input : subframe_payload_t;
+      constant expected_output : subframe_payload_t
     ) is
     begin
       in_subframe <= input;
@@ -78,7 +78,7 @@ begin
 
     function sample_subframe(
       constant sample : integer
-    ) return subframe_payload_type is
+    ) return subframe_payload_t is
       constant sample_bits : std_logic_vector(19 downto 0) := std_logic_vector(to_unsigned(sample, 20));
     begin
       return (

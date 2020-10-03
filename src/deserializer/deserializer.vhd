@@ -36,7 +36,7 @@ begin
         output <= data;
         out_valid <= out_valid_n1;
         if in_valid = '1' then
-          data <= data(MSB-1 downto 0) & input;
+          data <= input & data(MSB downto 1);
           if count = MSB then
             out_valid_n1 <= '1';
           else
