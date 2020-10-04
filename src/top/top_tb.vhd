@@ -32,7 +32,12 @@ begin
     clk => clk,
     rst_button => rst_button,
     input => input,
-    output => output
+    output => output,
+    red_leds => open,
+    green_leds => open,
+    spi_in => (others => '0'),
+    spi_out => open,
+    debug_pins => open
   );
 
   PROC_SEQUENCER : process
