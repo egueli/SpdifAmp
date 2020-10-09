@@ -3,13 +3,19 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library spdif_amp;
+use spdif_amp.types.all;
 
 entity top is
   port (
     clk : in std_logic;
     rst_button : in std_logic;
     input : in std_logic;
-    output : out std_logic
+    output : out std_logic;
+    red_leds : out std_logic_vector(10 downto 1);
+    green_leds : out std_logic_vector(10 downto 1);
+    spi_in : in spi_slave_in_t;
+    spi_out : out spi_slave_out_t;
+    debug_pins : out std_logic_vector(8 downto 1)
   );
 end top; 
 
@@ -65,4 +71,9 @@ begin
     subframe_valid => subframe_out_valid,
     output => output
   );
+
+  green_leds <= (others => '0');
+  red_leds <= (others => '1');
+  spi_out <= (miso => '0');
+  debug_pins <= (others => '0');
 end architecture;
