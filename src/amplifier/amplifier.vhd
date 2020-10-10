@@ -5,12 +5,14 @@ use ieee.numeric_std.all;
 entity amplifier is
   generic(
     -- number of bits of the input and output samples, including sign
-    SAMPLE_BITS : integer := 16
+    SAMPLE_BITS : integer := 16;
+    -- max allowed gain, as amount of bit shifting
+    MAX_GAIN : natural := 3
   );
   port (
     clk : in std_logic;
     rst : in std_logic;
-    gain : in natural range 3 downto 0;
+    gain : in natural range MAX_GAIN downto 0;
     in_sample : in signed(SAMPLE_BITS-1 downto 0);
     in_sample_valid : in std_logic;
     out_sample : out signed(SAMPLE_BITS-1 downto 0);
@@ -25,6 +27,7 @@ begin
   out_sample <= full_sample;
 
   PROC_SHIFTER : process(clk)
+    variable i : integer;
   begin
     if rising_edge(clk) then
       out_sample_valid <= '0';
@@ -34,13 +37,11 @@ begin
       else
         in_sample_valid_p1 <= in_sample_valid;
         if in_sample_valid = '1' and in_sample_valid_p1 = '0' then
-          case gain is
-            when 0 => full_sample <= in_sample;
-            when 1 => full_sample <= shift_left(in_sample, 1);
-            when 2 => full_sample <= shift_left(in_sample, 2);
-            when 3 => full_sample <= shift_left(in_sample, 3);
-            when others => full_sample <= in_sample;
-          end case;
+          for i in 0 to MAX_GAIN loop
+            if gain = i then
+              full_sample <= shift_left(in_sample, i);
+            end if;
+          end loop;
           out_sample_valid <= '1';
         end if;
       end if;
