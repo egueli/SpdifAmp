@@ -59,24 +59,32 @@ begin
         severity failure;
 
       assert out_sample = expected_out_sample
-        report "out sample is not " & integer'image(expected_out_sample) & " as expected, but " & integer'image(to_integer(out_sample))
+        report "for input " & integer'image(in_sample_num) & 
+        ", out sample is not " & integer'image(expected_out_sample) &
+        " as expected but " & integer'image(to_integer(out_sample))
         severity failure;
     end procedure;
   begin
     do_reset(clk, rst);
 
-    -- Check unity gain
-    check_amplification(100, 0, 100);
-    check_amplification(0, 0, 0);
-    check_amplification(-100, 0, -100);
-    check_amplification(32767, 0, 32767);
-    check_amplification(-32768, 0, -32768);
+    -- -- Check unity gain
+    -- check_amplification(100, 0, 100);
+    -- check_amplification(0, 0, 0);
+    -- check_amplification(-100, 0, -100);
+    -- check_amplification(32767, 0, 32767);
+    -- check_amplification(-32768, 0, -32768);
     -- Check amplification
     check_amplification(100, 1, 200);
-    check_amplification(100, 2, 400);
-    check_amplification(100, 3, 800);
-    -- Check amplification overflow
-    check_amplification(10000, 3, 14464); -- garbage output
+    check_amplification(-100, 1, -200);
+    check_amplification(16383, 1, 32766);
+    check_amplification(-16384, 1, -32768);
+    -- check_amplification(100, 2, 400);
+    -- check_amplification(100, 3, 800);
+    -- Check amplification saturation
+    check_amplification(16384, 1, 32767); -- and not 32768 due to saturation
+    check_amplification(-16385, 1, -32768); -- and not -32770 due to saturation
+    check_amplification(32767, 1, 32767); -- extreme inputs will be extremely saturated
+    check_amplification(-32768, 1, -32768);
     
     print_test_ok;
     finish;

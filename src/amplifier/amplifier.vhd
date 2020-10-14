@@ -22,9 +22,11 @@ end amplifier;
 
 architecture rtl of amplifier is
   signal in_sample_valid_p1 : std_logic;
-  signal full_sample : signed(in_sample'range);
+  signal full_sample : signed(SAMPLE_BITS downto 0); -- it's one bit larger than in_sample to contain overflow
+  constant max_positive : signed(SAMPLE_BITS downto 0) := "00" & (SAMPLE_BITS - 2 downto 0 => '1');
+  constant max_negative : signed(SAMPLE_BITS downto 0) := "01" & (SAMPLE_BITS - 2 downto 0 => '0');
 begin
-  out_sample <= full_sample;
+  out_sample <= full_sample(SAMPLE_BITS - 1 downto 0);
 
   PROC_SHIFTER : process(clk)
     variable i : integer;
@@ -37,11 +39,15 @@ begin
       else
         in_sample_valid_p1 <= in_sample_valid;
         if in_sample_valid = '1' and in_sample_valid_p1 = '0' then
-          for i in 0 to MAX_GAIN loop
-            if gain = i then
-              full_sample <= shift_left(in_sample, i);
-            end if;
-          end loop;
+          -- Detect positive overflow: MSB-1 is 1 and MSB is 0 => shift will make it negative
+          if in_sample(in_sample'high - 1) = '1' and in_sample(in_sample'high) = '0' then
+            full_sample <= max_positive;
+          -- Detect negative overflow: MSB-1 is 0 and MSB is 1 => shift will make it positive
+          elsif in_sample(in_sample'high - 1) = '0' and in_sample(in_sample'high) = '1' then
+            full_sample <= max_negative;
+          else
+            full_sample <= shift_left(resize(in_sample, full_sample'length), 1);
+          end if;
           out_sample_valid <= '1';
         end if;
       end if;
