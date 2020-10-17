@@ -8,6 +8,7 @@ library spdif_amp;
 
 library spdif_amp_sim;
 use spdif_amp_sim.sim_subprograms.all;
+use spdif_amp_sim.sim_constants.all;
 
 entity amplifier_tb is
   generic(
@@ -52,7 +53,7 @@ begin
       in_sample_valid <= '1';
       wait until rising_edge(clk);
       in_sample_valid <= '0';
-      wait until rising_edge(clk);
+      wait until rising_edge(out_sample_valid) for 10 * clock_period;
 
       assert out_sample_valid = '1'
         report "out sample is not valid when expected"
@@ -67,19 +68,21 @@ begin
   begin
     do_reset(clk, rst);
 
-    -- -- Check unity gain
-    -- check_amplification(100, 0, 100);
-    -- check_amplification(0, 0, 0);
-    -- check_amplification(-100, 0, -100);
-    -- check_amplification(32767, 0, 32767);
-    -- check_amplification(-32768, 0, -32768);
+    -- Check unity gain
+    check_amplification(100, 0, 100);
+    check_amplification(0, 0, 0);
+    check_amplification(-100, 0, -100);
+    check_amplification(32767, 0, 32767);
+    check_amplification(-32768, 0, -32768);
+
     -- Check amplification
     check_amplification(100, 1, 200);
     check_amplification(-100, 1, -200);
     check_amplification(16383, 1, 32766);
     check_amplification(-16384, 1, -32768);
-    -- check_amplification(100, 2, 400);
-    -- check_amplification(100, 3, 800);
+    check_amplification(100, 2, 400);
+    check_amplification(100, 3, 800);
+    
     -- Check amplification saturation
     check_amplification(16384, 1, 32767); -- and not 32768 due to saturation
     check_amplification(-16385, 1, -32768); -- and not -32770 due to saturation

@@ -8,9 +8,13 @@ add wave -noupdate /amplifier_tb/DUT/in_sample_valid
 add wave -noupdate /amplifier_tb/DUT/out_sample
 add wave -noupdate /amplifier_tb/DUT/out_sample_valid
 add wave -noupdate /amplifier_tb/DUT/in_sample_valid_p1
-add wave -noupdate /amplifier_tb/DUT/full_sample
+add wave -noupdate /amplifier_tb/DUT/accumulator
+add wave -noupdate /amplifier_tb/DUT/shift_count
+add wave -noupdate /amplifier_tb/DUT/state
+add wave -noupdate /amplifier_tb/DUT/msb
+add wave -noupdate /amplifier_tb/DUT/msb_1
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {267 ns} 0}
+WaveRestoreCursors {{Cursor 1} {420 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 213
 configure wave -valuecolwidth 46
@@ -26,4 +30,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {281 ns} {575 ns}
+WaveRestoreZoom {0 ns} {294 ns}
