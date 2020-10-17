@@ -106,7 +106,8 @@ begin
     check_processor(sample_subframe(16#00400#), sample_subframe(16#00800#));
     report "amplification that does change parity";
     check_processor(sample_subframe(16#FFC00#), sample_subframe(16#FF800#));
-
+    report "amplification that saturates";
+    check_processor(sample_subframe(16#40000#), sample_subframe(16#7FFFF#));
 
     finish;
   end process;
