@@ -10,18 +10,20 @@ entity spi_slave is
     clk : in std_logic;
     rst : in std_logic;
     spi_in : in spi_slave_in_t;
-    spi_out : out spi_slave_out_t
+    spi_out : out spi_slave_out_t;
+    gain : out integer range 3 downto 0
   );
 end spi_slave;
 
 architecture rtl of spi_slave is
   signal ss_sync : std_logic;
+  signal ss_sync_p1 : std_logic;
   signal sclk_sync : std_logic;
   signal sclk_sync_p1 : std_logic;
   signal mosi_sync : std_logic;
 
   signal input_buffer : std_logic_vector(7 downto 0);
-
+  signal bit_count : natural range 7 downto 0;
 begin
   SS_SCLK : entity spdif_amp.synchronizer(rtl)
   port map (
@@ -47,18 +49,30 @@ begin
     output => mosi_sync
   );
 
+  spi_out.miso <= '0';
+
   SHIFT_IN_PROC : process(clk)
   begin
     if rising_edge(clk) then
       if rst = '1' then
         input_buffer <= (others => '0');
-        spi_out.miso <= '0';
       else
+        ss_sync_p1 <= ss_sync;
         if ss_sync = '0' then
+          if ss_sync_p1 = '1' then
+            -- Reset communicatione once SS goes low
+            bit_count <= 7;
+          end if;
           sclk_sync_p1 <= sclk_sync;
           if sclk_sync_p1 = '0' and sclk_sync = '1' then
+            -- Receiving data one bit at a time
             input_buffer <= input_buffer(6 downto 0) & mosi_sync;
-            spi_out.miso <= input_buffer(7);
+            bit_count <= bit_count - 1;
+          end if;
+          
+          if bit_count = 0 then
+            -- A full byte has been received, use it
+            gain <= to_integer(unsigned(input_buffer(1 downto 0)));
           end if;
         end if;
       end if;
