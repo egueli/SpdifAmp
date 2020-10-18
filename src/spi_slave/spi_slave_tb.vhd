@@ -22,9 +22,6 @@ architecture sim of spi_slave_tb is
   signal rst : std_logic := '1';
 
 begin
-
-  clk <= not clk after clk_period / 2;
-
   DUT : entity spdif_amp.spi_slave(rtl)
   port map (
     clk => clk,
