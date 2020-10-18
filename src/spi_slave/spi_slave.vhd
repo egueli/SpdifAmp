@@ -9,6 +9,7 @@ entity spi_slave is
   port (
     clk : in std_logic;
     rst : in std_logic;
+    -- SPI input. The SS signal is active high.
     spi_in : in spi_slave_in_t;
     spi_out : out spi_slave_out_t;
     gain : out integer range 3 downto 0
@@ -56,10 +57,12 @@ begin
     if rising_edge(clk) then
       if rst = '1' then
         input_buffer <= (others => '0');
+        ss_sync_p1 <= '0';
+        sclk_sync_p1 <= '0';
       else
         ss_sync_p1 <= ss_sync;
-        if ss_sync = '0' then
-          if ss_sync_p1 = '1' then
+        if ss_sync = '1' then
+          if ss_sync_p1 = '0' then
             -- Reset communicatione once SS goes low
             bit_count <= 7;
           end if;

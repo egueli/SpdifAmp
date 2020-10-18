@@ -27,7 +27,7 @@ begin
     clk => clk,
     rst => rst,
     spi_in => (
-      ss => '1',
+      ss => '0',
       sclk => '0',
       mosi => '0'
     ),
