@@ -10,10 +10,10 @@ library spdif_amp;
 library spdif_amp_sim;
 use spdif_amp_sim.sim_subprograms.all;
 
-entity spi_slave_tb is
-end spi_slave_tb;
+entity host_interface_tb is
+end host_interface_tb;
 
-architecture sim of spi_slave_tb is
+architecture sim of host_interface_tb is
 
   constant clk_hz : integer := 100e6;
   constant clk_period : time := 1 sec / clk_hz;
@@ -25,7 +25,7 @@ architecture sim of spi_slave_tb is
   signal ss : std_logic := '0';
   signal mosi : std_logic := '0';
 begin
-  DUT : entity spdif_amp.spi_slave(rtl)
+  DUT : entity spdif_amp.host_interface(rtl)
   port map (
     clk => clk,
     rst => rst,

@@ -18,7 +18,7 @@ namespace eval ::run_do {
   # tcLib:   Testbench library
   # runTime: Time value (e.g., "10 ns")
   #          or "-all" to run until the finish keyword
-  variable tbEnt spi_slave_tb
+  variable tbEnt host_interface_tb
   variable tbLib spdif_amp_sim
   variable runTime -all
 

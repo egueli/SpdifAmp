@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 library spdif_amp;
 use spdif_amp.types.all;
 
-entity spi_slave is
+entity host_interface is
   port (
     clk : in std_logic;
     rst : in std_logic;
@@ -14,9 +14,9 @@ entity spi_slave is
     spi_out : out spi_slave_out_t;
     gain : out integer range 3 downto 0
   );
-end spi_slave;
+end host_interface;
 
-architecture rtl of spi_slave is
+architecture rtl of host_interface is
   signal ss_sync : std_logic;
   signal ss_sync_p1 : std_logic;
   signal sclk_sync : std_logic;
