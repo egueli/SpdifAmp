@@ -58,20 +58,20 @@ begin
       wait until rising_edge(clk);      
       wait until rising_edge(clk);      
     end procedure;
+
+    procedure send_byte(constant value : std_logic_vector(7 downto 0)) is
+    begin
+      for i in 7 downto 0 loop
+        send_bit(value(i));
+      end loop;
+    end procedure;
   begin
     do_reset(clk, rst);
 
     ss <= '1';
     wait until rising_edge(clk);
 
-    send_bit('1');
-    send_bit('0');
-    send_bit('1');
-    send_bit('0');
-    send_bit('0');
-    send_bit('1');
-    send_bit('0');
-    send_bit('1');
+    send_byte(x"A5");
 
     for i in 0 to 3 loop
       wait until rising_edge(clk);
