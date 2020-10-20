@@ -59,6 +59,7 @@ begin
         input_buffer <= (others => '0');
         ss_sync_p1 <= '0';
         sclk_sync_p1 <= '0';
+        gain <= 0;
       else
         ss_sync_p1 <= ss_sync;
         if ss_sync = '1' then
