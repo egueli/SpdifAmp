@@ -21,15 +21,18 @@ architecture sim of spi_slave_tb is
   signal clk : std_logic := '1';
   signal rst : std_logic := '1';
 
+  signal sclk : std_logic := '0';
+  signal ss : std_logic := '0';
+  signal mosi : std_logic := '0';
 begin
   DUT : entity spdif_amp.spi_slave(rtl)
   port map (
     clk => clk,
     rst => rst,
     spi_in => (
-      ss => '0',
-      sclk => '0',
-      mosi => '0'
+      ss => ss,
+      sclk => sclk,
+      mosi => mosi
     ),
     spi_out => open
   );
@@ -37,13 +40,33 @@ begin
   gen_clock(clk);
 
   SEQUENCER_PROC : process
+    procedure send_bit(constant value : std_logic) is
+    begin
+      sclk <= '0';
+      wait until rising_edge(clk);
+      mosi <= value;
+      wait until rising_edge(clk);
+      sclk <= '1';
+      wait until rising_edge(clk);      
+    end procedure;
   begin
     do_reset(clk, rst);
 
-    wait for clk_period * 10;
-    assert false
-      report "Replace this with your test cases"
-      severity failure;
+    ss <= '1';
+    wait until rising_edge(clk);
+
+    send_bit('1');
+    send_bit('0');
+    send_bit('1');
+    send_bit('0');
+    send_bit('0');
+    send_bit('1');
+    send_bit('0');
+    send_bit('1');
+
+    for i in 0 to 3 loop
+      wait until rising_edge(clk);
+    end loop;
 
     finish;
   end process;
