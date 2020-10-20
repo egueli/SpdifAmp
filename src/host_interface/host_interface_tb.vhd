@@ -65,23 +65,48 @@ begin
         send_bit(value(i));
       end loop;
     end procedure;
+
+    procedure verify_gain(
+      constant command : std_logic_vector(7 downto 0);
+      constant expected_gain : integer
+    ) is
+    begin
+      send_byte(command);
+
+      for i in 0 to 3 loop
+        wait until rising_edge(clk);
+      end loop;
+  
+      assert gain = expected_gain
+        report "verify_gain(cmd=" & 
+          to_hstring(command) & "h, expGain=" &
+          to_string(expected_gain) & ") but gain=" &
+          to_string(gain)
+        severity failure;
+    end procedure;
   begin
     do_reset(clk, rst);
 
     ss <= '1';
     wait until rising_edge(clk);
+  
+    -- Verify gain settings. Bits 7 to 2 are random.
+    verify_gain(x"00", 0);
+    verify_gain(x"FC", 0);
+    verify_gain(x"A5", 1);
+    verify_gain(x"22", 2);
+    verify_gain(x"0F", 3);
 
-    send_byte(x"A5");
-
-    for i in 0 to 3 loop
-      wait until rising_edge(clk);
-    end loop;
-
-    assert gain = 1
-      report "Gain is not 1 as expected"
-      severity failure;
+    -- with SS low, keep the previous gain
+    ss <= '0';
+    wait until rising_edge(clk);
+    verify_gain(x"01", 3);
     
-
+    -- with SS high again, apply gain.
+    ss <= '1';
+    wait until rising_edge(clk);
+    verify_gain(x"01", 1);
+    
     finish;
   end process;
 
