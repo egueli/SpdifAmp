@@ -68,16 +68,16 @@ begin
             bit_count <= 7;
           end if;
           sclk_sync_p1 <= sclk_sync;
-          if sclk_sync_p1 = '0' and sclk_sync = '1' then
+          if bit_count = 0 then
+            -- A full byte has been received, use it
+            gain <= to_integer(unsigned(input_buffer(1 downto 0)));
+          elsif bit_count > 0 and sclk_sync_p1 = '0' and sclk_sync = '1' then
             -- Receiving data one bit at a time
             input_buffer <= input_buffer(6 downto 0) & mosi_sync;
             bit_count <= bit_count - 1;
           end if;
           
-          if bit_count = 0 then
-            -- A full byte has been received, use it
-            gain <= to_integer(unsigned(input_buffer(1 downto 0)));
-          end if;
+
         end if;
       end if;
     end if;
