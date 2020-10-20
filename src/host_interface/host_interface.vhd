@@ -24,7 +24,8 @@ architecture rtl of host_interface is
   signal mosi_sync : std_logic;
 
   signal input_buffer : std_logic_vector(7 downto 0);
-  signal bit_count : natural range 7 downto 0;
+  -- number of bits to receive before processing byte
+  signal bit_count : natural range 8 downto 0;
 begin
   SS_SCLK : entity spdif_amp.synchronizer(rtl)
   port map (
@@ -65,19 +66,18 @@ begin
         if ss_sync = '1' then
           if ss_sync_p1 = '0' then
             -- Reset communicatione once SS goes low
-            bit_count <= 7;
+            bit_count <= 8;
           end if;
           sclk_sync_p1 <= sclk_sync;
           if bit_count = 0 then
             -- A full byte has been received, use it
             gain <= to_integer(unsigned(input_buffer(1 downto 0)));
-          elsif bit_count > 0 and sclk_sync_p1 = '0' and sclk_sync = '1' then
+            bit_count <= 8;
+          elsif sclk_sync_p1 = '0' and sclk_sync = '1' then
             -- Receiving data one bit at a time
             input_buffer <= input_buffer(6 downto 0) & mosi_sync;
             bit_count <= bit_count - 1;
           end if;
-          
-
         end if;
       end if;
     end if;

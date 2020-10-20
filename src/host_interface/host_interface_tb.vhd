@@ -24,6 +24,8 @@ architecture sim of host_interface_tb is
   signal sclk : std_logic := '0';
   signal ss : std_logic := '0';
   signal mosi : std_logic := '0';
+
+  signal gain : integer range 3 downto 0;
 begin
   DUT : entity spdif_amp.host_interface(rtl)
   port map (
@@ -34,7 +36,8 @@ begin
       sclk => sclk,
       mosi => mosi
     ),
-    spi_out => open
+    spi_out => open,
+    gain => gain
   );
 
   gen_clock(clk);
@@ -44,9 +47,15 @@ begin
     begin
       sclk <= '0';
       wait until rising_edge(clk);
+      wait until rising_edge(clk);
+      wait until rising_edge(clk);
       mosi <= value;
       wait until rising_edge(clk);
+      wait until rising_edge(clk);
+      wait until rising_edge(clk);
       sclk <= '1';
+      wait until rising_edge(clk);      
+      wait until rising_edge(clk);      
       wait until rising_edge(clk);      
     end procedure;
   begin
@@ -67,6 +76,11 @@ begin
     for i in 0 to 3 loop
       wait until rising_edge(clk);
     end loop;
+
+    assert gain = 1
+      report "Gain is not 1 as expected"
+      severity failure;
+    
 
     finish;
   end process;
