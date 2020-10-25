@@ -29,6 +29,10 @@ architecture str of top is
   signal subframe_in_valid : std_logic;
   signal subframe_out_payload : std_logic_vector(27 downto 0);
   signal subframe_out_valid : std_logic;
+
+  signal host_interface_spi_in : spi_slave_in_t;
+
+  signal gain : integer range 3 downto 0;
 begin
   RESET : entity spdif_amp.reset(rtl)
   port map (
@@ -55,7 +59,7 @@ begin
     rst => rst,
     in_subframe => subframe_in_payload,
     in_subframe_valid => subframe_in_valid,
-    gain => 0,
+    gain => gain,
     out_subframe => subframe_out_payload,
     out_subframe_valid => subframe_out_valid
   );
@@ -72,8 +76,20 @@ begin
     output => output
   );
 
+  host_interface_spi_in.sclk <= spi_in.sclk;
+  host_interface_spi_in.ss <= spi_in.ss;
+  host_interface_spi_in.mosi <= spi_in.mosi;
+
+  HOST_INTERFACE : entity spdif_amp.host_interface(rtl)
+  port map (
+    clk => clk,
+    rst => rst,
+    spi_in => host_interface_spi_in,
+    spi_out => spi_out,
+    gain => gain
+  );
+
   green_leds <= (others => '0');
   red_leds <= (others => '1');
-  spi_out <= (miso => '0');
   debug_pins <= (others => '0');
 end architecture;
