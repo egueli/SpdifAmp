@@ -30,6 +30,8 @@ architecture str of top is
   signal subframe_out_payload : std_logic_vector(27 downto 0);
   signal subframe_out_valid : std_logic;
 
+  signal vu_meter : std_logic_vector(9 downto 0);
+
   signal host_interface_spi_in : spi_slave_in_t;
 
   signal gain : integer range 3 downto 0;
@@ -61,7 +63,8 @@ begin
     in_subframe_valid => subframe_in_valid,
     gain => gain,
     out_subframe => subframe_out_payload,
-    out_subframe_valid => subframe_out_valid
+    out_subframe_valid => subframe_out_valid,
+    out_vu_meter => vu_meter
   );
 
   ENCODER : entity spdif_amp.aes3_encoder(str)
@@ -89,7 +92,7 @@ begin
     gain => gain
   );
 
-  green_leds <= (others => '0');
+  green_leds <= not vu_meter;
   red_leds <= (others => '1');
   debug_pins <= (others => '0');
 end architecture;

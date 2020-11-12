@@ -12,7 +12,8 @@ entity subframe_processor is
     in_subframe_valid : in std_logic;
     gain : in natural range 3 downto 0;
     out_subframe : out std_logic_vector(27 downto 0);
-    out_subframe_valid : out std_logic
+    out_subframe_valid : out std_logic;
+    out_vu_meter : out std_logic_vector(9 downto 0)
   );
 end subframe_processor;
 
@@ -59,6 +60,16 @@ begin
     in_sample_valid => amplify_sample_valid,
     out_sample => amplified_sample,
     out_sample_valid => amplified_sample_valid
+  );
+
+  VU_METER : entity spdif_amp.vu_meter(str)
+  generic map(SAMPLE_BITS => 20, NUM_LEDS => 10)
+  port map(
+    clk => clk,
+    rst => rst,
+    in_sample => signed(sample_in),
+    in_sample_valid => amplify_sample_valid,
+    out_leds => out_vu_meter
   );
 
   parity_gen_in <= incoming_subframe(26 downto 24) & std_logic_vector(amplified_sample) & incoming_subframe(3 downto 0);
