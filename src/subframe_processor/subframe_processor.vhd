@@ -24,12 +24,12 @@ architecture rtl of subframe_processor is
   signal parity_check_valid : std_logic;
   signal parity_check : std_logic;
 
-  signal sample_in : std_logic_vector(19 downto 0);
+  signal sample_in : std_logic_vector(15 downto 0);
   signal amplify_sample_valid : std_logic;
   signal amplified_sample_valid : std_logic;
-  signal amplified_sample : signed(19 downto 0);
+  signal amplified_sample : signed(15 downto 0);
 
-  signal parity_gen_in : std_logic_vector(26 downto 0);
+  signal parity_gen_in : std_logic_vector(22 downto 0);
   signal parity_gen_in_valid: std_logic;
   signal parity_gen : std_logic;
   signal parity_gen_valid : std_logic;
@@ -48,10 +48,10 @@ begin
     out_valid => parity_check_valid
   );
 
-  sample_in <= incoming_subframe(23 downto 4);
+  sample_in <= incoming_subframe(23 downto 8);
 
   AMPLIFIER : entity spdif_amp.amplifier(rtl)
-  generic map(SAMPLE_BITS => 20)
+  generic map(SAMPLE_BITS => 16)
   port map(
     clk => clk,
     rst => rst,
@@ -63,7 +63,7 @@ begin
   );
 
   VU_METER : entity spdif_amp.vu_meter(str)
-  generic map(SAMPLE_BITS => 20, NUM_LEDS => 10)
+  generic map(SAMPLE_BITS => 16, NUM_LEDS => 10)
   port map(
     clk => clk,
     rst => rst,
@@ -75,7 +75,7 @@ begin
   parity_gen_in <= incoming_subframe(26 downto 24) & std_logic_vector(amplified_sample) & incoming_subframe(3 downto 0);
 
   PARITY_GENERATOR : entity spdif_amp.parity(rtl)
-  generic map(NUM_BITS => 27)
+  generic map(NUM_BITS => 23)
   port map(
     clk => clk,
     rst => rst,
@@ -134,7 +134,8 @@ begin
               -- We now have all the information to assemble the subframe.
               out_subframe(27) <= parity_gen;
               out_subframe(26 downto 24) <= incoming_subframe(26 downto 24);
-              out_subframe(23 downto 4) <= std_logic_vector(amplified_sample);
+              out_subframe(23 downto 8) <= std_logic_vector(amplified_sample);
+              out_subframe(7 downto 4) <= "0000";
               out_subframe(3 downto 0) <= incoming_subframe(3 downto 0);
               out_subframe_valid <= '1';
               state <= IDLE;

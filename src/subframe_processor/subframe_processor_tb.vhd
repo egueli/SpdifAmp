@@ -95,8 +95,8 @@ begin
 
     report "all-zero subframes go as-is";
     check_processor(16#0000000#, 16#0000000#);
-    report "non-zero subframes with correct parity go as-is";
-    check_processor(16#A55AA55#, 16#A55AA55#);
+    report "non-zero subframes with correct parity go as-is except last four sample bits";
+    check_processor(16#A55AA55#, 16#A55AA05#);
     report "non-zero subframes with wrong parity are cleared";
     check_processor(16#A55AA54#, 16#0000000#);
 
@@ -107,7 +107,7 @@ begin
     report "amplification that does change parity";
     check_processor(sample_subframe(16#FFC00#), sample_subframe(16#FF800#));
     report "amplification that saturates";
-    check_processor(sample_subframe(16#40000#), sample_subframe(16#7FFFF#));
+    check_processor(sample_subframe(16#40000#), sample_subframe(16#7FFF0#));
 
     finish;
   end process;
